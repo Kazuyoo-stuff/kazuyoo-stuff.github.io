@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Celestial Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }body {
+  font-family: 'Orbitron', sans-serif;
+  background: linear-gradient(to bottom, #0b0c10, #1f2833);
+  color: #ffffff;
+}
+
+header {
+  background: url('https://raw.githubusercontent.com/Kazuyoo-stuff/Celestial-Game-Opt/369a8cef4160ee8df630430e3ae117f956d3bbc7/image/image.jpg') center/cover no-repeat;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-bottom: 1px solid #45a29e;
+}
+
+header h1 {
+  color: #66fcf1;
+  font-size: 2.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1rem;
+  background-color: #0b0c10;
+}
+
+nav a {
+  color: #c5c6c7;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: #66fcf1;
+}
+
+section {
+  padding: 3rem 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+section h2 {
+  color: #66fcf1;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+section p {
+  font-size: 1.1rem;
+  color: #c5c6c7;
+  line-height: 1.6;
+}
+
+.projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.project-card {
+  background: #1f2833;
+  border: 1px solid #45a29e;
+  padding: 1.5rem;
+  border-radius: 10px;
+  transition: transform 0.3s;
+}
+
+.project-card:hover {
+  transform: scale(1.05);
+}
+
+footer {
+  background-color: #0b0c10;
+  color: #45a29e;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 3rem;
+}
+
+  </style>
+</head><body>
+  <header>
+    <h1>Project Celestial Lab</h1>
+  </header>
+  <nav>
+    <a href="#about">Tentang</a>
+    <a href="#projects">Proyek</a>
+    <a href="#contact">Kontak</a>
+  </nav>  <section id="about">
+    <h2>Tentang Celestial Lab</h2>
+    <p>
+      Celestial Lab adalah ruang eksperimen dan eksplorasi digital yang berfokus pada pengembangan teknologi kreatif, game, dan solusi inovatif. Kami menggabungkan seni, sains, dan teknologi untuk menciptakan pengalaman digital yang menakjubkan.
+    </p>
+  </section>  <section id="projects">
+    <h2>Proyek Unggulan</h2>
+    <div class="projects">
+      <div class="project-card">
+        <h3>Celestial GV</h3>
+        <p>Framework modular untuk optimalisasi game berbasis Android.</p>
+      </div>
+      <div class="project-card">
+        <h3>NovaX</h3>
+        <p>Eksperimen AI berbasis suara dengan antarmuka futuristik.</p>
+      </div>
+      <div class="project-card">
+        <h3>Lunar Engine</h3>
+        <p>Game engine ringan untuk developer indie dengan fokus pada storytelling.</p>
+      </div>
+    </div>
+  </section>  <section id="contact">
+    <h2>Hubungi Kami</h2>
+    <p>Untuk kolaborasi atau pertanyaan, silakan kirim email ke: <a href="mailto:celestial@lab.dev" style="color:#66fcf1">celestial@lab.dev</a></p>
+  </section>  <footer>
+    <p>&copy; 2025 Project Celestial Lab. All rights reserved.</p>
+  </footer>
+</body></html>
