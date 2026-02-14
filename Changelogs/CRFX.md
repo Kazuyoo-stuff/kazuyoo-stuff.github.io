@@ -1,0 +1,17 @@
+## Celestial-Render-FlowX [v1.8]
+- Improved EGL & HWUI initialization for faster GL context loading and reduced first-frame stutter.
+- Optimized RenderEngine behavior and disabled unnecessary telemetry/tracing overhead.
+- Enabled SurfaceFlinger multithreaded present and frame-rate priority for better frame delivery stability.
+- Disabled VSYNC processing when screen is off to reduce background wakeups.
+- Disabled GPU input boost for more consistent frequency scaling under load.
+- Enabled Adreno GPU overclock support (OC/OV enabled, UC/UV disabled) for higher peak performance.
+- Forced Mali GPU always-on mode to reduce wake latency during gaming sessions.
+- Kept SDE Rotator clock active to minimize display pipeline latency.
+- Disabled simple GPU scaling algorithm to prevent aggressive downscaling and micro-stutter.
+- Disabled MediaTek Dynamic Clock Scaling (DCS) mode for more stable GPU frequency behavior.
+- Enabled touch boost to improve input responsiveness and reduce touch latency.
+- Enabled ADPF CPU Hint (Android 13+) for smarter CPU performance coordination during gaming.
+- Integrated automatic Game Driver / ANGLE driver selection based on Android version.
+- Added dynamic renderer switching (Vulkan / OpenGL) with automatic driver configuration.
+- Implemented automatic compatibility handling for Android 12+ updatable driver system.
+- Cleaned up conflicting driver settings before applying new renderer configuration.
