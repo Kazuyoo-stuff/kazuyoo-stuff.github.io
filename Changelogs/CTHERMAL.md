@@ -1,1 +1,7 @@
-
+- Added handling for vendor.thermal* properties (force disable boolean & numeric flags).
+- Added clearing for *thermal.data* properties to prevent thermal data reporting.
+- Battery over-current throttling stop lock applied.
+- Disabled multiple hotplug mechanisms (intelli_plug, blu_plug, mako_hotplug, autosmp, zen_decision).
+- Reduced aggressive MIGT boost behavior without fully disabling scheduler.
+- Disabled GLK max frequency lock & tuned hispeed load.
+- Disabled MIGT PID boost control.
