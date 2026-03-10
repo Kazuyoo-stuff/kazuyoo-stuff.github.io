@@ -8,6 +8,9 @@
 - Fixed `-P` pidfile flag removed from vmtouch call since `-d` was also removed
 - Fixed `head | while` pipe subshell issue in `set_game_preload` — `$jobs` counter now works correctly for `MAX_PARALLEL` throttle
 - Fixed `find -mmin` stale lock cleanup replaced with manual `stat -c %Y` age calculation
+- Fixed `mlock()` failing silently due to `RLIMIT_MEMLOCK` too low — added `ulimit -l unlimited` via subshell before vmtouch lock
+- Fixed vmtouch `-dl` daemon killed by Android process reaper — replaced with `( ) &` subshell keeping vmtouch foreground as `-lw`
+- Fixed vmtouch `-d` orphan daemon killed by Android lmkd — removed `-d`, PID now tracked from subshell directly
 - Added `MemAvailable` based RAM budget (`RAM_BUDGET_PCT=55`) instead of relying only on `MemTotal`
 - Added hard MB cap check — skips package if free RAM budget < 256 MB
 - Added package install validation via `pm path` before starting preload
@@ -19,7 +22,7 @@
 - Added `trap cleanup_tmp` for early exit cleanup on error
 - Added parallel game preload with `MAX_PARALLEL=3` throttle
 - Added `set_systemui_preload` PID tracking via `vmtouch_systemui.pid`
-- Added SystemUI files collected into single list for one vmtouch call instead of per-file
+- Added SystemUI files collected into single list for one vmtouch call
 - Added `vmtouch_systemui.pid` excluded from `Active locks` count in `--status`
 - Added `--status` command with active lock count and log path
 - Added `cleanup_stale_locks` using file mtime instead of `find -mmin`
@@ -27,6 +30,14 @@
 - Added log rotation to `.prev` file on each refresh cycle
 - Added `=== Refresh cycle started/done ===` markers in log
 - Added daemon stop in `--stop` now also kills `refresh_loop` process via `GAP_PID_FILE`
+- Added vmtouch `-t` touch pass before `-lw` lock pass to populate page cache first
+- Added `oom_score_adj = -1000` written after vmtouch spawn to protect from lmkd (root only)
+- Added 32-bit and 64-bit binary support: `vmtouch32` and `vmtouch64` with auto-detect via `ro.product.cpu.abi`
+- Added Magisk install logic to select correct arch binary and rename to `vmtouch` at install time
+- Added Axeron integration: auto-copy `vmtouch` binary to `$AXERONXBIN` if Axeron environment detected
 - Changed `BLACKLIST` regex improved with proper anchors (`\.tmp$` instead of `.*.tmp`)
 - Changed `wc -l` replaced with `grep -c .` for accurate non-empty line counting in gamelist
-- Changed vmtouch flags from `-dlw` to `-lw` (daemon mode removed, backgrounded manually)
+- Changed vmtouch flags from `-dlw` to two-step: `-t` (touch) then `-lw` (lock) in separate subshell
+- Ported entire script to native C binary with zero shell dependency for priority and process management
+- Ported `taskset/renice/ionice` to native `sched_setaffinity`, `setpriority`, `syscall(SYS_ioprio_set)`
+- Ported `ulimit -l unlimited` to native `setrlimit(RLIMIT_MEMLOCK, RLIM_INFINITY)` in C port
