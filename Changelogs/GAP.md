@@ -1,0 +1,32 @@
+# Changelog
+
+## [v1.0]
+- Fixed inline comments inside `find \( ... \)` block that caused syntax error at runtime
+- Fixed `pkill -9 $(cat $pidf)` changed to `kill -9 "$(cat $pidf)"` for correct PID-based kill
+- Fixed `sleep 0.5` before saving PID removed, PID now saved immediately after `&` fork
+- Fixed vmtouch race condition: removed `-d` flag, replaced with `&` + `echo $!` for reliable PID tracking
+- Fixed `-P` pidfile flag removed from vmtouch call since `-d` was also removed
+- Fixed `head | while` pipe subshell issue in `set_game_preload` — `$jobs` counter now works correctly for `MAX_PARALLEL` throttle
+- Fixed `find -mmin` stale lock cleanup replaced with manual `stat -c %Y` age calculation
+- Added `MemAvailable` based RAM budget (`RAM_BUDGET_PCT=55`) instead of relying only on `MemTotal`
+- Added hard MB cap check — skips package if free RAM budget < 256 MB
+- Added package install validation via `pm path` before starting preload
+- Added data directory existence check before starting preload
+- Added two-pass file selection: engine/GPU-critical files loaded first as highest priority
+- Added `ENGINE_NAMES` pattern list for Unity and Unreal engine critical files
+- Added dedup check in pass 2 to avoid adding engine files twice to final list
+- Added `TMP_DIR` as centralized temp directory (`/data/local/tmp/gap/`)
+- Added `trap cleanup_tmp` for early exit cleanup on error
+- Added parallel game preload with `MAX_PARALLEL=3` throttle
+- Added `set_systemui_preload` PID tracking via `vmtouch_systemui.pid`
+- Added SystemUI files collected into single list for one vmtouch call instead of per-file
+- Added `vmtouch_systemui.pid` excluded from `Active locks` count in `--status`
+- Added `--status` command with active lock count and log path
+- Added `cleanup_stale_locks` using file mtime instead of `find -mmin`
+- Added screen state fallback to `dumpsys power mWakefulness` if prop unavailable
+- Added log rotation to `.prev` file on each refresh cycle
+- Added `=== Refresh cycle started/done ===` markers in log
+- Added daemon stop in `--stop` now also kills `refresh_loop` process via `GAP_PID_FILE`
+- Changed `BLACKLIST` regex improved with proper anchors (`\.tmp$` instead of `.*.tmp`)
+- Changed `wc -l` replaced with `grep -c .` for accurate non-empty line counting in gamelist
+- Changed vmtouch flags from `-dlw` to `-lw` (daemon mode removed, backgrounded manually)
