@@ -1,0 +1,16 @@
+- Fixed critical scaling bug where `early` and `late` values were calculated using microseconds instead of nanoseconds, resulting in 63x smaller values than intended (0.33ms instead of 21ms).
+- Fixed `pkill -9 -f PID` replaced with correct `kill -9 PID` to properly terminate process by PID.
+- Fixed `phase_gap` was calculated and clamped but never applied to `early_raw` and `late_raw` calculations (dead code).
+- Fixed duplicate FPS branches (`>=120`, `>=90`, `>=80`, `else`) all containing identical values — removed and replaced with direct constants.
+- Fixed `xdpi` was read from dumpsys but never used in any calculation — removed unnecessary popen call.
+- Fixed `early.sf.duration` and `late.sf.duration` from `/ 2` (50%) to `* 45 / 100` (45%) for tighter SF internal pipeline.
+- Fixed `vspan` from 85% to 50% of frame time — previous value left only 2.5ms for app pipeline causing stiffness.
+- Fixed `phase_thresh` from 105% to 120% of frame time — previous value caused SF to skip vsync too easily resulting in jitter.
+- Added `debug.sf.enable_gl_backpressure` to prevent GPU queue buildup.
+- Added `debug.sf.use_phase_offsets_as_durations` to ensure early/late values are interpreted as durations consistently.
+- Added `debug.sf.frame_rate_multiple_threshold` fixed to 60 instead of dynamic `FPS / 2`.
+- Added two-step vsync detection with `--latency` as primary and `head -n80` grep as fallback.
+- Added screen state check to pause daemon when screen is off.
+- Added vsync change threshold of 800000ns to avoid unnecessary reapply on minor fluctuations.
+- Added sanity range check `3000000 < ft < 33000000` to reject invalid vsync values.
+- Added `phase_gap` adaptive adjustment to `early_raw` and `late_raw` based on actual SF vs app phase difference on device.
