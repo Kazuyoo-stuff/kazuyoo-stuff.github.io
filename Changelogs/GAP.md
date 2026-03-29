@@ -1,43 +1,30 @@
 # Changelog
 
-## [v1.0]
-- Fixed inline comments inside `find \( ... \)` block that caused syntax error at runtime
-- Fixed `pkill -9 $(cat $pidf)` changed to `kill -9 "$(cat $pidf)"` for correct PID-based kill
-- Fixed `sleep 0.5` before saving PID removed, PID now saved immediately after `&` fork
-- Fixed vmtouch race condition: removed `-d` flag, replaced with `&` + `echo $!` for reliable PID tracking
-- Fixed `-P` pidfile flag removed from vmtouch call since `-d` was also removed
-- Fixed `head | while` pipe subshell issue in `set_game_preload` — `$jobs` counter now works correctly for `MAX_PARALLEL` throttle
-- Fixed `find -mmin` stale lock cleanup replaced with manual `stat -c %Y` age calculation
-- Fixed `mlock()` failing silently due to `RLIMIT_MEMLOCK` too low — added `ulimit -l unlimited` via subshell before vmtouch lock
-- Fixed vmtouch `-dl` daemon killed by Android process reaper — replaced with `( ) &` subshell keeping vmtouch foreground as `-lw`
-- Fixed vmtouch `-d` orphan daemon killed by Android lmkd — removed `-d`, PID now tracked from subshell directly
-- Added `MemAvailable` based RAM budget (`RAM_BUDGET_PCT=55`) instead of relying only on `MemTotal`
-- Added hard MB cap check — skips package if free RAM budget < 256 MB
-- Added package install validation via `pm path` before starting preload
-- Added data directory existence check before starting preload
-- Added two-pass file selection: engine/GPU-critical files loaded first as highest priority
-- Added `ENGINE_NAMES` pattern list for Unity and Unreal engine critical files
-- Added dedup check in pass 2 to avoid adding engine files twice to final list
-- Added `TMP_DIR` as centralized temp directory (`/data/local/tmp/gap/`)
-- Added `trap cleanup_tmp` for early exit cleanup on error
-- Added parallel game preload with `MAX_PARALLEL=3` throttle
-- Added `set_systemui_preload` PID tracking via `vmtouch_systemui.pid`
-- Added SystemUI files collected into single list for one vmtouch call
-- Added `vmtouch_systemui.pid` excluded from `Active locks` count in `--status`
-- Added `--status` command with active lock count and log path
-- Added `cleanup_stale_locks` using file mtime instead of `find -mmin`
-- Added screen state fallback to `dumpsys power mWakefulness` if prop unavailable
-- Added log rotation to `.prev` file on each refresh cycle
-- Added `=== Refresh cycle started/done ===` markers in log
-- Added daemon stop in `--stop` now also kills `refresh_loop` process via `GAP_PID_FILE`
-- Added vmtouch `-t` touch pass before `-lw` lock pass to populate page cache first
-- Added `oom_score_adj = -1000` written after vmtouch spawn to protect from lmkd (root only)
-- Added 32-bit and 64-bit binary support: `vmtouch32` and `vmtouch64` with auto-detect via `ro.product.cpu.abi`
-- Added Magisk install logic to select correct arch binary and rename to `vmtouch` at install time
-- Added Axeron integration: auto-copy `vmtouch` binary to `$AXERONXBIN` if Axeron environment detected
-- Changed `BLACKLIST` regex improved with proper anchors (`\.tmp$` instead of `.*.tmp`)
-- Changed `wc -l` replaced with `grep -c .` for accurate non-empty line counting in gamelist
-- Changed vmtouch flags from `-dlw` to two-step: `-t` (touch) then `-lw` (lock) in separate subshell
-- Ported entire script to native C binary with zero shell dependency for priority and process management
-- Ported `taskset/renice/ionice` to native `sched_setaffinity`, `setpriority`, `syscall(SYS_ioprio_set)`
-- Ported `ulimit -l unlimited` to native `setrlimit(RLIMIT_MEMLOCK, RLIM_INFINITY)` in C port
+## [v1.1]
+- Initial release — APK quickload per-package into page cache.
+- Added native libs `.so` preload from `/lib/arm64-v8a/`.
+- Added `.dm` dex metadata preload.
+- Added `.bytes` disguised native libs preload (e.g. Mobile Legends comlibs).
+- Added OBB files preload for large game assets.
+- Added shallow scan for known paths — `comlibs`, `lib`, `libs`, `assets/comlibs`, `files/dragon2017/assets/comlibs`.
+- Added launcher silent preload without log using vmtouch `-R`.
+- Added UFW preload hint per-package via `cmd ufw settings set-preload-enable`.
+- Added universal launcher detection via `pm list packages` keyword match.
+- Added per-package preload report log with APK count, size, RAM, resident %.
+- Added RAM budget check before preload — skip if budget below 128MB.
+- Added parallel preload with `MAX_PARALLEL=3`.
+- Added refresh cycle every 3600s with screen-off skip.
+- Added `--status` command showing PID, games in list, last preload time.
+- Sort files by size descending — largest files preloaded first.
+- RAM budget set to 65% of available RAM.
+- vmtouch_kzyo: added `-A` advise, `-R` readahead, `-Q` quick mode flags.
+- vmtouch_kzyo: added `madvise SEQUENTIAL+WILLNEED` hint during `-t` touch mode.
+- Game preload uses vmtouch `-Q -f` for most aggressive prefetch.
+- Launcher preload uses vmtouch `-R` async readahead — lightweight, no log.
+- Fixed `GAMELIST_FILE` path from `/data/local/tmp/gap_gamelist.txt` to `/data/local/tmp/gamelist.txt`.
+- Fixed vmtouch launcher preload from `-R` to `-Q -l` to lock pages after prefetch.
+- Fixed vmtouch game preload from `-Q -f` to `-Q -l -f` to properly lock pages in RAM.
+- Fixed vmtouch `-Q -l` replaced with `-t -l` so pages are fully resident before locking, not async.
+- Fixed initial `run_preload` now runs before `nice/ionice` is set so preload is not throttled by idle priority.
+- Changed `MAX_PARALLEL` from `3` to `2` to reduce I/O contention on entry-level devices.
+- Changed `RAM_BUDGET_PCT` from `65` to `75` to allocate more RAM for locked game assets.
