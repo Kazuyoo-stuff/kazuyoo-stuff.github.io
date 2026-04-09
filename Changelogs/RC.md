@@ -9,3 +9,4 @@
 - Changed sleep intervals to consistent integers in seconds.
 - Added `--stop` command to cleanly kill daemon and remove PID file.
 - Added `get_fg_pkg` fallback — tries `visible=true` first, falls back to `head -n1` if empty.
+- Thanks to @Java_nih_deks for fix check pid on action.
