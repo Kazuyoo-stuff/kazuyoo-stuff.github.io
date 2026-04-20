@@ -1,30 +1,16 @@
 # Changelog
 
-## [v1.1]
-- Initial release — APK quickload per-package into page cache.
-- Added native libs `.so` preload from `/lib/arm64-v8a/`.
-- Added `.dm` dex metadata preload.
-- Added `.bytes` disguised native libs preload (e.g. Mobile Legends comlibs).
-- Added OBB files preload for large game assets.
-- Added shallow scan for known paths — `comlibs`, `lib`, `libs`, `assets/comlibs`, `files/dragon2017/assets/comlibs`.
-- Added launcher silent preload without log using vmtouch `-R`.
-- Added UFW preload hint per-package via `cmd ufw settings set-preload-enable`.
-- Added universal launcher detection via `pm list packages` keyword match.
-- Added per-package preload report log with APK count, size, RAM, resident %.
-- Added RAM budget check before preload — skip if budget below 128MB.
-- Added parallel preload with `MAX_PARALLEL=3`.
-- Added refresh cycle every 3600s with screen-off skip.
-- Added `--status` command showing PID, games in list, last preload time.
-- Sort files by size descending — largest files preloaded first.
-- RAM budget set to 65% of available RAM.
-- vmtouch_kzyo: added `-A` advise, `-R` readahead, `-Q` quick mode flags.
-- vmtouch_kzyo: added `madvise SEQUENTIAL+WILLNEED` hint during `-t` touch mode.
-- Game preload uses vmtouch `-Q -f` for most aggressive prefetch.
-- Launcher preload uses vmtouch `-R` async readahead — lightweight, no log.
-- Fixed `GAMELIST_FILE` path from `/data/local/tmp/gap_gamelist.txt` to `/data/local/tmp/gamelist.txt`.
-- Fixed vmtouch launcher preload from `-R` to `-Q -l` to lock pages after prefetch.
-- Fixed vmtouch game preload from `-Q -f` to `-Q -l -f` to properly lock pages in RAM.
-- Fixed vmtouch `-Q -l` replaced with `-t -l` so pages are fully resident before locking, not async.
-- Fixed initial `run_preload` now runs before `nice/ionice` is set so preload is not throttled by idle priority.
-- Changed `MAX_PARALLEL` from `3` to `2` to reduce I/O contention on entry-level devices.
-- Changed `RAM_BUDGET_PCT` from `65` to `75` to allocate more RAM for locked game assets.
+## [v1.2]
+- Fixed report field `$budget` → `$budget_mb` and `$ram_free`/`$ram_total` → `$ram_avail_mb`/`$ram_mb` (were undefined variables in original).
+- Added `Resident` field to prefetch report using `vmtouch -o kv` structured output instead of awk regex on human-readable text.
+- Replaced redundant `-R` and `-Q` vmtouch passes with single `-t` (blocking mmap+touch) before `-dlw` lock, reducing vmtouch spawns from 3 to 2.
+- Moved `ulimit -l unlimited` before the touch pass so mlock does not fail.
+- Fixed `file_limit` integer truncation by replacing `(ram_gb * 12) + 12` with `(ram_mb * 12) / 1024 + 12` to avoid precision loss from integer division on devices reporting RAM below exact GB boundaries.
+- Raised `file_limit` hard cap from 96 to 128.
+- Removed duplicate scan paths: dropped `/data/data/$pkg` (alias of `/data/user/0`) and `/sdcard/Android/...` (alias of `/storage/emulated/0/Android/...`).
+- Added `/data/user_de/0/$pkg` (Direct Boot storage, used by Unity on Android 7+).
+- Replaced static data directory scan with dynamic install directory resolution via `pm path`, now scanning `oat/`, `lib/arm64-v8a/`, `lib/arm/`, `*.apk`, `*.dm`, `*.vdex`, `*.odex` as Priority 1.
+- Removed `/storage/emulated/0/Android/data/$pkg` from scan entirely, replaced by install dir.
+- Expanded ENGINE_NAMES with: `libmain.so`, `libunity.so`, `libUE4.so`, `libUE5.so`, `libgame.so`, `libcocos2dcpp.so`, `libCryEngine.so`, `libFMOD*.so`, `.obb`, `.xapk`, `main.obb`, `patch.obb`, `data.unity3d`, `boot.data`, `bundle.data`, `.bundle`, `.manifest`, `.ab`, `.assetbundle`, `.zippak`, `app_data.db`, `game_data.db`.
+- ENGINE_NAMES grep now uses `-i` flag (case-insensitive) to catch variants like `GameAssembly.so`.
+- Removed `cp LOGFILE LOGFILE.prev` from refresh loop (reverted to match latest shell version).
