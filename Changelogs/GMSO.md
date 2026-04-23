@@ -1,4 +1,6 @@
+# Changelogs
 
+### [EOL - REVISED-3]
 - Merged `gms_appops_feature` and `gms_doze_featute` into a single unified `gms_optimize` function, eliminating duplicate iteration over the same package list
 - Removed duplicate `appops set GET_USAGE_STATS ignore` that appeared twice in the appops block
 - Moved `appops write-settings` and `appops read-settings` outside the loop so they are called once after all packages are processed instead of per-iteration
