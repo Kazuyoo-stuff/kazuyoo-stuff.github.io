@@ -1,21 +1,21 @@
 # Changelogs
 ### [v2.0]
-- Complete rewrite from prop file to full shell script with GPL license and copyright notice
-- Added multi-GPU driver support for Adreno, Mali, and PowerVR with dedicated optimization functions
-- Fixed optimize_gpu_frequency v2 — volt extraction variable from freq to gpu_freq which was undefined
-- Fixed optimize_gpu_temperature — threshold check raised from < 90000 to < 95000 to match written value
-- Added helper functions for write_val, mask_val, change_task_cgroup, and change_task_nice
-- Implemented GPU thermal zone management to increase trip point temperatures to 95°C
-- Added task scheduling optimizations with cgroup assignments (top-app/background) and nice priorities (-20)
-- Added dynamic memory management with swappiness tuning based on RAM size (5-20%)
-- Integrated FPSGO kernel optimizations with gpu_block_boost and rescue_enable_by_pid
-- Added hardware-specific path detection for gpufreq, gpufreqv2, GED, and kgsl parameters
-- Implemented Vulkan/OpenGL renderer auto-detection for driver configuration
-- Added game list integration with automatic driver opt-in/opt-out for Android 12+
-- Added file masking system to lock critical GPU parameters and prevent system overrides
-- Set GPU devfreq governor to performance mode with disabled idle timers
-- Reduced memory readahead to 128KB and optimized I/O scheduler settings
-- Added SurfaceFlinger GL backpressure disabling
-- Enabled MSM touch boost and power manager touch boost
-- Disabled fsync and vsync at kernel module level for reduced latency
-- Added comprehensive logging for all parameter changes
+- Added `VM_PATH="/proc/sys/vm"` variable declaration to fix undefined variable in `optimize_memory`
+- Added thermal throttling disable: `msm_thermal core_control`, `parameters`, `cpufreq_control`, and `cpuvoltage_control` all set to `0`
+- Changed GPU thermal trip point threshold from `105000` to `95000`
+- Fixed `boost_upper_bound` from `0` to `100` to allow full GED boost range
+- Fixed `gpu_dvfs_enable` from `0` to `1` so GPU can scale up under load
+- Fixed `ged_smart_boost` from `0` to `1` to enable smart frequency boost on frame drop
+- Changed `gpu_cust_boost_freq` and `gpu_cust_upbound_freq` from hardcoded `3000000` to dynamic value read from `gpufreq_opp_dump`
+- Fixed `thermal_pwrlevel` from `1` to `0` for maximum Adreno performance
+- Fixed `throttling` from `1` to `0` to disable Adreno GPU throttling
+- Added `fsync_enable "0"` and `vsync_enable "0"` to `optimize_adreno_driver` to reduce GPU stall
+- Added devfreq `governor` set to `performance` in `optimize_adreno_driver`
+- Added `idle_timer "0"` to keep Adreno clock hot
+- Added `gpudev/nap_allowed "0"` to disable GPU NAP
+- Removed `change_task_nice "zygote" "-20"` from `optimize_task_cgroup_nice` as it has no meaningful effect
+- Added `/sys/module/sync/parameters/fsync_enabled "N"` and `vsync_enabled "N"`
+- Added `/sys/kernel/debug/msm_fb/0/fsync_enable "0"` and `vsync_enable "0"`
+- Added `/proc/sys/kernel/sched_boost "1"` to `final_optimize_gpu`
+- Added `setprop debug.sf.enable_gl_backpressure 0` for SurfaceFlinger backpressure control
+- Added dynamic ANGLE/Game Driver renderer selection based on detected renderer (`Vulkan` or `OpenGL`) using package list from `gamelist.txt`
