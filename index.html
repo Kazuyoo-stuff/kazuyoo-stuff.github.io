@@ -3,66 +3,1010 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kzuyoo-stuff</title>
+  <title>Celestial Lab — by Kazuyoo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <style>
+    :root {
+      --md-sys-color-primary: #a8c8ff;
+      --md-sys-color-on-primary: #003062;
+      --md-sys-color-primary-container: #004489;
+      --md-sys-color-on-primary-container: #d6e3ff;
+      --md-sys-color-secondary: #bbc6dc;
+      --md-sys-color-on-secondary: #253141;
+      --md-sys-color-secondary-container: #3b4858;
+      --md-sys-color-on-secondary-container: #d7e3f7;
+      --md-sys-color-tertiary: #d6bee4;
+      --md-sys-color-on-tertiary: #3b2948;
+      --md-sys-color-tertiary-container: #523f5f;
+      --md-sys-color-on-tertiary-container: #f2daff;
+      --md-sys-color-error: #ffb4ab;
+      --md-sys-color-background: #1a1c1e;
+      --md-sys-color-on-background: #e2e2e6;
+      --md-sys-color-surface: #1a1c1e;
+      --md-sys-color-on-surface: #e2e2e6;
+      --md-sys-color-surface-variant: #43474e;
+      --md-sys-color-on-surface-variant: #c3c6cf;
+      --md-sys-color-surface-container: #1e2024;
+      --md-sys-color-surface-container-high: #282a2e;
+      --md-sys-color-surface-container-highest: #33363a;
+      --md-sys-color-outline: #8d9199;
+      --md-sys-color-outline-variant: #43474e;
+
+      --md-elevation-1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+      --md-elevation-2: 0 1px 2px rgba(0,0,0,.3), 0 2px 6px 2px rgba(0,0,0,.15);
+      --md-elevation-3: 0 4px 8px 3px rgba(0,0,0,.15), 0 1px 3px rgba(0,0,0,.3);
+
+      --md-shape-corner-xs: 4px;
+      --md-shape-corner-s: 8px;
+      --md-shape-corner-m: 12px;
+      --md-shape-corner-l: 16px;
+      --md-shape-corner-xl: 28px;
+      --md-shape-corner-full: 50px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      background-color: #1c1c1e;
-      color: #e5e5ea;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
+      background-color: var(--md-sys-color-background);
+      color: var(--md-sys-color-on-background);
+      font-family: 'Roboto', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
-    header {
+
+    /* ── TOP APP BAR ── */
+    .top-app-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: color-mix(in srgb, var(--md-sys-color-surface) 95%, transparent);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      padding: 0 16px;
+      height: 64px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 16px;
-      font-size: 20px;
-    }
-    nav {
-      display: flex;
-      justify-content: center;
-      margin: 0 auto 16px;
       gap: 12px;
     }
-    nav a {
-      padding: 8px 16px;
-      border-radius: 20px;
-      background-color: #2c2c2e;
-      color: #0a84ff;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 14px;
-      box-shadow: inset 0 0 0 1px #3a3a3c;
-      cursor: pointer;
+    .top-app-bar .app-icon {
+      width: 32px; height: 32px;
+      background: var(--md-sys-color-primary-container);
+      border-radius: var(--md-shape-corner-s);
+      display: flex; align-items: center; justify-content: center;
     }
-    .container {
-      padding: 0 16px;
+    .top-app-bar .app-icon .material-icons-round { color: var(--md-sys-color-on-primary-container); font-size: 18px; }
+    .top-app-bar .title {
+      font-family: 'Google Sans Display', sans-serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--md-sys-color-on-surface);
+      flex: 1;
     }
-    .section {
-      display: none;
+    .top-app-bar .headline-sub {
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0.3px;
     }
-    .active {
+
+    /* ── HERO BANNER ── */
+    .hero {
+      margin: 16px;
+      border-radius: var(--md-shape-corner-xl);
+      background: linear-gradient(135deg, #004489 0%, #1a1c1e 60%, #3b2948 100%);
+      padding: 28px 24px 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--md-elevation-3);
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(168,200,255,.18) 0%, transparent 70%);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -20px; left: -20px;
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(214,190,228,.12) 0%, transparent 70%);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: var(--md-shape-corner-full);
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--md-sys-color-on-primary-container);
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+    .hero-badge .material-icons-round { font-size: 14px; }
+    .hero h1 {
+      font-family: 'Google Sans Display', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .hero p {
+      font-size: 13px;
+      color: rgba(255,255,255,.7);
+      line-height: 1.5;
+      max-width: 300px;
+    }
+    .hero-thumbnail {
+      margin-top: 16px;
+      border-radius: var(--md-shape-corner-l);
+      overflow: hidden;
+      width: 100%;
+    }
+    .hero-thumbnail img {
+      width: 100%;
+      height: auto;
       display: block;
+      border-radius: var(--md-shape-corner-l);
     }
-    .install-box, .module, .support-box {
-      background-color: #2c2c2e;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: inset 0 0 0 1px #3a3a3c;
-    }
-    .install-box {
+
+    /* ── NAVIGATION BAR ── */
+    .nav-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: color-mix(in srgb, var(--md-sys-color-surface-container-high) 98%, transparent);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
       display: flex;
-      align-items: center;
-      justify-content: center;
+      justify-content: space-around;
+      padding: 12px 8px max(12px, env(safe-area-inset-bottom));
+      z-index: 100;
     }
-    .install-box svg {
-      width: 20px;
-      height: 20px;
-      margin-right: 8px;
-      fill: #0a84ff;
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      cursor: pointer; flex: 1;
+      padding: 0 4px;
+      -webkit-tap-highlight-color: transparent;
     }
-    .install-link, .module a {
+    .nav-item .nav-indicator {
+      display: flex; align-items: center; justify-content: center;
+      width: 64px; height: 32px;
+      border-radius: var(--md-shape-corner-full);
+      transition: background 200ms cubic-bezier(.2,0,0,1);
+    }
+    .nav-item.active .nav-indicator {
+      background: var(--md-sys-color-secondary-container);
+    }
+    .nav-item .material-icons-round {
+      font-size: 22px;
+      color: var(--md-sys-color-on-surface-variant);
+      transition: color 200ms;
+    }
+    .nav-item.active .material-icons-round { color: var(--md-sys-color-on-secondary-container); }
+    .nav-item .nav-label {
+      font-size: 12px; font-family: 'Google Sans', sans-serif;
+      color: var(--md-sys-color-on-surface-variant);
+      transition: color 200ms;
+      letter-spacing: 0.3px;
+    }
+    .nav-item.active .nav-label { color: var(--md-sys-color-on-secondary-container); font-weight: 500; }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      padding: 0 16px;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    /* ── SECTION ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── CARD ── */
+    .md3-card {
+      background: var(--md-sys-color-surface-container-high);
+      border-radius: var(--md-shape-corner-xl);
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: var(--md-elevation-1);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      position: relative;
+      overflow: hidden;
+    }
+    .md3-card-title {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 16px; font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+      margin-bottom: 4px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .md3-card-title .material-icons-round { color: var(--md-sys-color-primary); font-size: 20px; }
+    .md3-card-body {
+      font-size: 14px;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.6;
+    }
+
+    /* ── PROFILE SECTION ── */
+    .profile-row {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 16px;
+    }
+    .profile-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--md-sys-color-primary-container);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Google Sans Display', sans-serif;
+      font-size: 24px; font-weight: 700;
+      color: var(--md-sys-color-on-primary-container);
+      flex-shrink: 0;
+    }
+    .profile-info .name {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 18px; font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+    }
+    .profile-info .location {
+      font-size: 13px;
+      color: var(--md-sys-color-on-surface-variant);
+      display: flex; align-items: center; gap: 4px; margin-top: 2px;
+    }
+    .profile-info .location .material-icons-round { font-size: 14px; }
+
+    /* ── DIVIDER ── */
+    .md3-divider {
+      height: 1px;
+      background: var(--md-sys-color-outline-variant);
+      margin: 16px 0;
+    }
+
+    /* ── CHIP STRIP ── */
+    .chip-strip {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;
+    }
+    .md3-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      height: 32px; padding: 0 12px;
+      border-radius: var(--md-shape-corner-full);
+      background: var(--md-sys-color-surface-container-highest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      font-size: 13px; font-family: 'Google Sans', sans-serif;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .md3-chip .material-icons-round { font-size: 16px; color: var(--md-sys-color-primary); }
+
+    /* ── SOCIAL LIST ── */
+    .social-list { display: flex; flex-direction: column; gap: 4px; }
+    .social-item {
+      display: flex; align-items: center; gap: 16px;
+      padding: 12px 0;
+      text-decoration: none;
+      color: var(--md-sys-color-on-surface);
+      border-radius: var(--md-shape-corner-m);
+      transition: background 150ms;
+      position: relative;
+    }
+    .social-item:active { background: rgba(255,255,255,.06); }
+    .social-item .social-icon {
+      width: 40px; height: 40px; border-radius: var(--md-shape-corner-m);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .social-item .social-text .label {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 14px; font-weight: 500;
+    }
+    .social-item .social-text .handle {
+      font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-top: 1px;
+    }
+    .social-item .chevron { margin-left: auto; color: var(--md-sys-color-outline); }
+    .social-item .chevron .material-icons-round { font-size: 18px; }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--md-sys-color-primary);
+      padding: 16px 0 8px;
+    }
+
+    /* ── MODULE CARD ── */
+    .module-card {
+      background: var(--md-sys-color-surface-container-high);
+      border-radius: var(--md-shape-corner-xl);
+      padding: 16px 16px 12px;
+      margin-bottom: 10px;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      box-shadow: var(--md-elevation-1);
+      display: flex; flex-direction: column; gap: 8px;
+      transition: box-shadow 200ms, transform 150ms;
+    }
+    .module-card:active { transform: scale(0.99); box-shadow: none; }
+    .module-card .module-top {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .module-card .module-icon {
+      width: 40px; height: 40px; border-radius: var(--md-shape-corner-m);
+      background: var(--md-sys-color-primary-container);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .module-card .module-icon .material-icons-round {
+      color: var(--md-sys-color-on-primary-container); font-size: 20px;
+    }
+    .module-card .module-info { flex: 1; }
+    .module-card .module-name {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 14px; font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+      line-height: 1.3;
+    }
+    .module-card .module-ver {
+      display: inline-block;
+      font-size: 11px;
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-radius: var(--md-shape-corner-full);
+      padding: 1px 8px; margin-top: 4px;
+      font-family: 'Google Sans', sans-serif;
+    }
+    .module-card .module-ver.eol {
+      background: rgba(255,180,171,.15);
+      color: var(--md-sys-color-error);
+    }
+    .module-card .module-desc {
+      font-size: 13px;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.5;
+    }
+    .module-card .module-footer {
+      display: flex; align-items: center; justify-content: flex-end;
+    }
+    .md3-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 36px; padding: 0 16px;
+      border-radius: var(--md-shape-corner-full);
+      font-family: 'Google Sans', sans-serif;
+      font-size: 14px; font-weight: 500;
+      text-decoration: none;
+      cursor: pointer; border: none;
+      transition: box-shadow 150ms, filter 150ms;
+    }
+    .md3-btn-filled {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+    .md3-btn-filled:active { filter: brightness(0.9); }
+    .md3-btn-tonal {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+    .md3-btn-tonal:active { filter: brightness(0.9); }
+    .md3-btn .material-icons-round { font-size: 16px; }
+
+    /* ── SUPPORT CARD ── */
+    .support-highlight {
+      background: linear-gradient(135deg, var(--md-sys-color-primary-container), var(--md-sys-color-tertiary-container));
+      border-radius: var(--md-shape-corner-xl);
+      padding: 20px;
+      margin-bottom: 12px;
+      position: relative; overflow: hidden;
+    }
+    .support-highlight .sh-title {
+      font-family: 'Google Sans Display', sans-serif;
+      font-size: 20px; font-weight: 700;
+      color: var(--md-sys-color-on-primary-container);
+      margin-bottom: 6px;
+    }
+    .support-highlight .sh-desc {
+      font-size: 13px;
+      color: color-mix(in srgb, var(--md-sys-color-on-primary-container) 80%, transparent);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    /* ── SEARCH BAR ── */
+    .search-bar {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--md-sys-color-surface-container-highest);
+      border-radius: var(--md-shape-corner-full);
+      padding: 0 16px;
+      height: 48px;
+      margin-bottom: 12px;
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+    .search-bar .material-icons-round { color: var(--md-sys-color-on-surface-variant); font-size: 20px; }
+    .search-bar input {
+      flex: 1; background: transparent; border: none; outline: none;
+      font-family: 'Roboto', sans-serif; font-size: 14px;
+      color: var(--md-sys-color-on-surface);
+    }
+    .search-bar input::placeholder { color: var(--md-sys-color-on-surface-variant); }
+
+    /* ── FILTER CHIPS ── */
+    .filter-row {
+      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      height: 32px; padding: 0 12px;
+      border-radius: var(--md-shape-corner-full);
+      background: transparent;
+      border: 1px solid var(--md-sys-color-outline);
+      font-size: 13px; font-family: 'Google Sans', sans-serif;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      transition: background 150ms, color 150ms;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .filter-chip.active {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-color: transparent;
+    }
+    .filter-chip .material-icons-round { font-size: 16px; }
+
+    /* ── FOOTER ── */
+    .footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+      padding: 8px 0 12px;
+    }
+
+    /* ── RIPPLE EFFECT ── */
+    .ripple-host { position: relative; overflow: hidden; cursor: pointer; }
+    .ripple-host::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: currentColor;
+      opacity: 0;
+      border-radius: inherit;
+      transition: opacity 300ms;
+    }
+    .ripple-host:active::after { opacity: 0.08; }
+
+    /* ── ANIMATE IN ── */
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(12px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .section.active > * {
+      animation: fadeUp 280ms cubic-bezier(.2,0,0,1) both;
+    }
+    .section.active > *:nth-child(1) { animation-delay: 0ms; }
+    .section.active > *:nth-child(2) { animation-delay: 40ms; }
+    .section.active > *:nth-child(3) { animation-delay: 80ms; }
+    .section.active > *:nth-child(4) { animation-delay: 120ms; }
+    .section.active > *:nth-child(5) { animation-delay: 160ms; }
+    .section.active > *:nth-child(6) { animation-delay: 200ms; }
+    .section.active > *:nth-child(n+7) { animation-delay: 240ms; }
+  </style>
+</head>
+<body>
+
+<!-- TOP APP BAR -->
+<div class="top-app-bar">
+  <div class="app-icon">
+    <span class="material-icons-round">science</span>
+  </div>
+  <div>
+    <div class="title">Celestial Lab</div>
+    <div class="headline-sub">Tweak · Test · Transform</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- ═══════════════ HOME ═══════════════ -->
+  <div id="home" class="section active">
+
+    <div style="height:16px"></div>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-badge">
+        <span class="material-icons-round">auto_awesome</span>
+        Android Optimization Lab
+      </div>
+      <h1>Celestial Laboratory</h1>
+      <p>Where tweaks meet precision — better performance, efficiency, and full control for your Android.</p>
+      <div class="hero-thumbnail">
+        <img src="https://raw.githubusercontent.com/Kazuyoo-stuff/kazuyoo-stuff.github.io/740491a80e10690938b3f4c607ae68e9b94bd389/IMG/IMG_20250525_094654.jpg" alt="Celestial Thumbnail">
+      </div>
+    </div>
+
+    <!-- PROFILE CARD -->
+    <div class="section-label">Developer</div>
+    <div class="md3-card">
+      <div class="profile-row">
+        <div class="profile-avatar">D</div>
+        <div class="profile-info">
+          <div class="name">Diki Nur Rohmat</div>
+          <div class="location">
+            <span class="material-icons-round">location_on</span>
+            Kebumen, Central Java, Indonesia
+          </div>
+        </div>
+      </div>
+      <p class="md3-card-body">
+        Hi everyone! 👋 Just an ordinary high school student and independent developer who loves exploring Android internals — from light tweaks and performance enhancements to advanced system experiments.
+      </p>
+      <div class="chip-strip">
+        <div class="md3-chip"><span class="material-icons-round">android</span> Android Dev</div>
+        <div class="md3-chip"><span class="material-icons-round">memory</span> Kernel Tuner</div>
+        <div class="md3-chip"><span class="material-icons-round">bolt</span> Optimizer</div>
+      </div>
+    </div>
+
+    <!-- ABOUT CARD -->
+    <div class="section-label">About Project</div>
+    <div class="md3-card">
+      <div class="md3-card-title">
+        <span class="material-icons-round">rocket_launch</span>
+        What is Celestial Lab?
+      </div>
+      <div class="md3-divider"></div>
+      <p class="md3-card-body">
+        Celestial Lab is where Android optimization experiments, tweaks, and lightweight modules are born. Every project is designed with three pillars in mind:
+      </p>
+      <div class="chip-strip" style="margin-top:10px;">
+        <div class="md3-chip"><span class="material-icons-round">speed</span> Efficiency</div>
+        <div class="md3-chip"><span class="material-icons-round">shield</span> Stability</div>
+        <div class="md3-chip"><span class="material-icons-round">tune</span> Control</div>
+      </div>
+      <div class="md3-divider"></div>
+      <p class="md3-card-body">
+        All projects and tools here are independently developed to improve performance and user experience across various Android devices.
+      </p>
+    </div>
+
+    <!-- SOCIAL CARD -->
+    <div class="section-label">Social Media</div>
+    <div class="md3-card" style="padding: 8px 16px;">
+      <div class="social-list">
+
+        <a class="social-item ripple-host" href="https://youtube.com/@kazuyooopensources" target="_blank">
+          <div class="social-icon" style="background:#ff000022;">
+            <span style="font-size:20px;">▶</span>
+          </div>
+          <div class="social-text">
+            <div class="label">YouTube</div>
+            <div class="handle">@kazuyooopensources</div>
+          </div>
+          <div class="chevron"><span class="material-icons-round">open_in_new</span></div>
+        </a>
+
+        <div class="md3-divider" style="margin:0;"></div>
+
+        <a class="social-item ripple-host" href="https://t.me/KzyoCh" target="_blank">
+          <div class="social-icon" style="background:#0088cc22;">
+            <span style="color:#0088cc; font-size:18px; font-weight:700;">✈</span>
+          </div>
+          <div class="social-text">
+            <div class="label">Telegram Channel</div>
+            <div class="handle">@KzyoCh</div>
+          </div>
+          <div class="chevron"><span class="material-icons-round">open_in_new</span></div>
+        </a>
+
+        <div class="md3-divider" style="margin:0;"></div>
+
+        <a class="social-item ripple-host" href="https://t.me/KzyoDisc" target="_blank">
+          <div class="social-icon" style="background:#0088cc22;">
+            <span style="color:#0088cc; font-size:18px; font-weight:700;">💬</span>
+          </div>
+          <div class="social-text">
+            <div class="label">Telegram Discussion</div>
+            <div class="handle">@KzyoDisc</div>
+          </div>
+          <div class="chevron"><span class="material-icons-round">open_in_new</span></div>
+        </a>
+
+        <div class="md3-divider" style="margin:0;"></div>
+
+        <a class="social-item ripple-host" href="http://tiktok.com/@dikicl26" target="_blank">
+          <div class="social-icon" style="background:#ee1d5222;">
+            <span style="font-size:16px;">♪</span>
+          </div>
+          <div class="social-text">
+            <div class="label">TikTok</div>
+            <div class="handle">@dikicl26</div>
+          </div>
+          <div class="chevron"><span class="material-icons-round">open_in_new</span></div>
+        </a>
+
+        <div class="md3-divider" style="margin:0;"></div>
+
+        <a class="social-item ripple-host" href="https://www.instagram.com/dkinrhmt" target="_blank">
+          <div class="social-icon" style="background:#e1306c22;">
+            <span style="font-size:16px;">📸</span>
+          </div>
+          <div class="social-text">
+            <div class="label">Instagram</div>
+            <div class="handle">@dkinrhmt</div>
+          </div>
+          <div class="chevron"><span class="material-icons-round">open_in_new</span></div>
+        </a>
+
+      </div>
+    </div>
+
+    <div class="footer-note">Thanks for visiting — bye-bye! 👋</div>
+  </div>
+
+  <!-- ═══════════════ MODULES ═══════════════ -->
+  <div id="modules" class="section">
+
+    <div style="height:16px"></div>
+
+    <!-- SEARCH -->
+    <div class="search-bar">
+      <span class="material-icons-round">search</span>
+      <input type="text" id="searchInput" placeholder="Search modules…" oninput="filterModules()">
+    </div>
+
+    <!-- FILTER CHIPS -->
+    <div class="filter-row">
+      <div class="filter-chip active ripple-host" data-filter="all" onclick="setFilter(this,'all')">
+        <span class="material-icons-round">apps</span> All
+      </div>
+      <div class="filter-chip ripple-host" data-filter="active" onclick="setFilter(this,'active')">
+        <span class="material-icons-round">check_circle</span> Active
+      </div>
+      <div class="filter-chip ripple-host" data-filter="eol" onclick="setFilter(this,'eol')">
+        <span class="material-icons-round">archive</span> EOL
+      </div>
+    </div>
+
+    <!-- MODULE LIST -->
+    <div id="moduleList">
+
+      <div class="module-card" data-status="active" data-name="Celestial-Game-Opt gaming performance WebUI">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">sports_esports</span></div>
+          <div class="module-info">
+            <div class="module-name">Celestial-Game-Opt 🕊️</div>
+            <span class="module-ver">v2.7 · WebUI</span>
+          </div>
+        </div>
+        <div class="module-desc">Tweaks &amp; improvements for better gaming performance.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/4H6rZe" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="active" data-name="Celestial-Flinger-Flux display smoothness responsiveness">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">display_settings</span></div>
+          <div class="module-info">
+            <div class="module-name">Celestial-Flinger-Flux 🧬</div>
+            <span class="module-ver">v2.1</span>
+          </div>
+        </div>
+        <div class="module-desc">Improve display smoothness and responsiveness.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/cOQ9V6Q5" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="active" data-name="Celestial-Disable-Log tracking statistics">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">block</span></div>
+          <div class="module-info">
+            <div class="module-name">Celestial-Disable-Log 🐦</div>
+            <span class="module-ver">v1.4</span>
+          </div>
+        </div>
+        <div class="module-desc">Minimize tracking / statistics activity.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/yxQr8b" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="eol" data-name="Celestial-Network-Opt network speed wifi">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">wifi</span></div>
+          <div class="module-info">
+            <div class="module-name">Celestial-Network-Opt 🐬</div>
+            <span class="module-ver eol">EOL</span>
+          </div>
+        </div>
+        <div class="module-desc">Increase network speed (Data or Wi-Fi).</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/nAEO722A" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="active" data-name="Celestial-Render-FlowX rendering graphics performance">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">grain</span></div>
+          <div class="module-info">
+            <div class="module-name">Celestial-Render-FlowX 👾</div>
+            <span class="module-ver">v1.7G Series</span>
+          </div>
+        </div>
+        <div class="module-desc">Improved rendering speed, graphics performance optimizations, and more.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/XsGM9V" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="active" data-name="Celestial-Kernel-Tweaks kernel performance efficiency">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">developer_board</span></div>
+          <div class="module-info">
+            <div class="module-name">Celestial-Kernel-Tweaks 🛸</div>
+            <span class="module-ver">v1.6T</span>
+          </div>
+        </div>
+        <div class="module-desc">Improve device performance and efficiency by adjusting kernel settings.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/3Sfn" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="active" data-name="Celestial-Thermal temperature regulation">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">device_thermostat</span></div>
+          <div class="module-info">
+            <div class="module-name">Celestial-Thermal 🌡️</div>
+            <span class="module-ver">v1.3</span>
+          </div>
+        </div>
+        <div class="module-desc">Disables the temperature regulation system on the device.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/6N6Oz" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="eol" data-name="GMS Optimizer Google Play battery">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">battery_saver</span></div>
+          <div class="module-info">
+            <div class="module-name">GMS - Optimizer ❄️</div>
+            <span class="module-ver eol">EOL · Revised-2</span>
+          </div>
+        </div>
+        <div class="module-desc">Reduce Google Play services overhead &amp; battery usage.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/U4lI" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="active" data-name="Unisoc Priority UFW gaming">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">flash_on</span></div>
+          <div class="module-info">
+            <div class="module-name">Unisoc - Priority - UFW</div>
+            <span class="module-ver">v1.2</span>
+          </div>
+        </div>
+        <div class="module-desc">Dynamic Unisoc UFW optimization for smoother gaming.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/83uavwB" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="active" data-name="Ram Compaction RAM usage memory">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">memory</span></div>
+          <div class="module-info">
+            <div class="module-name">Ram - Compaction</div>
+            <span class="module-ver">v1.3</span>
+          </div>
+        </div>
+        <div class="module-desc">Reduce total RAM usage without stopping running app processes.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/mWcNbaL" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="active" data-name="SkiaGL Renderer rendering">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">brush</span></div>
+          <div class="module-info">
+            <div class="module-name">SkiaGL - Renderer</div>
+            <span class="module-ver">Latest</span>
+          </div>
+        </div>
+        <div class="module-desc">Switch rendering pipeline to SkiaGL.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/17w4" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="active" data-name="SkiaVK Renderer Vulkan rendering">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">auto_fix_high</span></div>
+          <div class="module-info">
+            <div class="module-name">SkiaVK - Renderer</div>
+            <span class="module-ver">Latest</span>
+          </div>
+        </div>
+        <div class="module-desc">Switch rendering pipeline to SkiaVK (Vulkan-based).</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/C2iD5RR1" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="module-card" data-status="eol" data-name="Smooth User Interface UI responsiveness smoothness">
+        <div class="module-top">
+          <div class="module-icon"><span class="material-icons-round">touch_app</span></div>
+          <div class="module-info">
+            <div class="module-name">Smooth-User-Interface ❄️</div>
+            <span class="module-ver eol">EOL · Remake</span>
+          </div>
+        </div>
+        <div class="module-desc">Improve UI responsiveness and overall smoothness.</div>
+        <div class="module-footer">
+          <a class="md3-btn md3-btn-tonal" href="https://sfl.gl/DWda5Y" download>
+            <span class="material-icons-round">download</span> Download
+          </a>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="emptyState" style="display:none; text-align:center; padding:40px 0; color:var(--md-sys-color-on-surface-variant);">
+        <span class="material-icons-round" style="font-size:48px; opacity:0.4;">search_off</span>
+        <p style="margin-top:8px; font-size:14px;">No modules found</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════ SUPPORT ═══════════════ -->
+  <div id="support" class="section">
+
+    <div style="height:16px"></div>
+
+    <!-- DONATE HIGHLIGHT -->
+    <div class="support-highlight">
+      <div class="sh-title">☕ Support the Dev</div>
+      <div class="sh-desc">
+        Celestial Lab is built solo with passion. Your support keeps experiments running and new modules coming!
+      </div>
+      <a class="md3-btn md3-btn-filled" href="https://saweria.co/Kazuyoo" target="_blank">
+        <span class="material-icons-round">favorite</span> Donate via Saweria
+      </a>
+    </div>
+
+    <!-- CONTACT CARD -->
+    <div class="section-label">Get Help</div>
+    <div class="md3-card">
+      <div class="md3-card-title">
+        <span class="material-icons-round">support_agent</span>
+        Need Assistance?
+      </div>
+      <p class="md3-card-body" style="margin: 8px 0 16px;">
+        Encountered an issue? Reach out via Telegram or browse the GitHub repositories for documentation and changelogs.
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <a class="md3-btn md3-btn-tonal" href="https://t.me/Kzuyoo" target="_blank" style="width:fit-content;">
+          <span class="material-icons-round">telegram</span> t.me/Kzuyoo
+        </a>
+        <a class="md3-btn md3-btn-tonal" href="https://github.com/Kazuyoo-stuff" target="_blank" style="width:fit-content;">
+          <span class="material-icons-round">code</span> GitHub Repositories
+        </a>
+      </div>
+    </div>
+
+    <!-- INFO CARD -->
+    <div class="section-label">Project Info</div>
+    <div class="md3-card">
+      <div class="md3-card-title">
+        <span class="material-icons-round">info</span>
+        Open Source &amp; Community
+      </div>
+      <div class="md3-divider"></div>
+      <p class="md3-card-body">
+        All modules are free to use and shared openly. If you find a bug or have a suggestion, feel free to open an issue on GitHub or post in the Telegram discussion group.
+      </p>
+      <div class="chip-strip" style="margin-top:12px;">
+        <div class="md3-chip"><span class="material-icons-round">public</span> Free &amp; Open</div>
+        <div class="md3-chip"><span class="material-icons-round">groups</span> Community</div>
+      </div>
+    </div>
+
+    <div class="footer-note">© 2025 Project Celestial Lab — by Kazuyoo</div>
+  </div>
+
+</div><!-- /.main -->
+
+<!-- BOTTOM NAVIGATION BAR -->
+<nav class="nav-bar">
+  <div class="nav-item active ripple-host" id="nav-home" onclick="showSection('home', this)">
+    <div class="nav-indicator">
+      <span class="material-icons-round">home</span>
+    </div>
+    <span class="nav-label">Home</span>
+  </div>
+  <div class="nav-item ripple-host" id="nav-modules" onclick="showSection('modules', this)">
+    <div class="nav-indicator">
+      <span class="material-icons-round">widgets</span>
+    </div>
+    <span class="nav-label">Modules</span>
+  </div>
+  <div class="nav-item ripple-host" id="nav-support" onclick="showSection('support', this)">
+    <div class="nav-indicator">
+      <span class="material-icons-round">favorite</span>
+    </div>
+    <span class="nav-label">Support</span>
+  </div>
+</nav>
+
+<script>
+  let currentFilter = 'all';
+
+  function showSection(id, navEl) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    (navEl || document.getElementById('nav-' + id)).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function setFilter(el, filter) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    filterModules();
+  }
+
+  function filterModules() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('#moduleList .module-card');
+    let visible = 0;
+    cards.forEach(card => {
+      const name = card.dataset.name.toLowerCase();
+      const status = card.dataset.status;
+      const matchSearch = name.includes(query);
+      const matchFilter = currentFilter === 'all' || status === currentFilter;
+      const show = matchSearch && matchFilter;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('emptyState').style.display = visible === 0 ? 'block' : 'none';
+  }
+</script>
+
+</body>
+</html>
       color: #0a84ff;
       text-decoration: none;
       font-size: 14px;
