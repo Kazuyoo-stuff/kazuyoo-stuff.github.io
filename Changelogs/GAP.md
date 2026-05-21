@@ -1,16 +1,34 @@
 # Changelog
 
 ## [v1.2]
-- Fixed report field `$budget` → `$budget_mb` and `$ram_free`/`$ram_total` → `$ram_avail_mb`/`$ram_mb` (were undefined variables in original).
-- Added `Resident` field to prefetch report using `vmtouch -o kv` structured output instead of awk regex on human-readable text.
-- Replaced redundant `-R` and `-Q` vmtouch passes with single `-t` (blocking mmap+touch) before `-dlw` lock, reducing vmtouch spawns from 3 to 2.
-- Moved `ulimit -l unlimited` before the touch pass so mlock does not fail.
-- Fixed `file_limit` integer truncation by replacing `(ram_gb * 12) + 12` with `(ram_mb * 12) / 1024 + 12` to avoid precision loss from integer division on devices reporting RAM below exact GB boundaries.
-- Raised `file_limit` hard cap from 96 to 128.
-- Removed duplicate scan paths: dropped `/data/data/$pkg` (alias of `/data/user/0`) and `/sdcard/Android/...` (alias of `/storage/emulated/0/Android/...`).
-- Added `/data/user_de/0/$pkg` (Direct Boot storage, used by Unity on Android 7+).
-- Replaced static data directory scan with dynamic install directory resolution via `pm path`, now scanning `oat/`, `lib/arm64-v8a/`, `lib/arm/`, `*.apk`, `*.dm`, `*.vdex`, `*.odex` as Priority 1.
-- Removed `/storage/emulated/0/Android/data/$pkg` from scan entirely, replaced by install dir.
-- Expanded ENGINE_NAMES with: `libmain.so`, `libunity.so`, `libUE4.so`, `libUE5.so`, `libgame.so`, `libcocos2dcpp.so`, `libCryEngine.so`, `libFMOD*.so`, `.obb`, `.xapk`, `main.obb`, `patch.obb`, `data.unity3d`, `boot.data`, `bundle.data`, `.bundle`, `.manifest`, `.ab`, `.assetbundle`, `.zippak`, `app_data.db`, `game_data.db`.
-- ENGINE_NAMES grep now uses `-i` flag (case-insensitive) to catch variants like `GameAssembly.so`.
-- Removed `cp LOGFILE LOGFILE.prev` from refresh loop (reverted to match latest shell version).
+**Core Preload Logic**
+- Fixed `find -exec stat {} +` pipe subshell issue causing `raw_*.txt` to always be empty on Android sh
+- Fixed `pm path` output not stripping `\r` causing APK path check to always fail
+- Fixed `sort` tab separator not working on Android sh, switched to space-separated format with safe `awk` field stripping
+- Fixed `for apk in $apk_paths` word-splitting corrupting multi-line APK paths, replaced with file-based iteration
+- Added multi-directory scan covering `/data/user/0`, `/data/data`, `/storage/emulated/0/Android/data`, `/storage/emulated/0/Android/obb`
+- Added OBB file inclusion alongside APK in preload list
+
+**vmtouch Command Sequence**
+- Replaced `-t` with `-Q` / `-R` (device-dependent) for warm-up phase before lock
+- Added `-f` flag across all vmtouch calls to follow symbolic links, fixing incomplete resident pages on devices with symlinked APK/OBB paths
+- Removed `-d` (daemon mode) from lock phase — `-d` causes vmtouch to fork and exit immediately, making `resident` check always return N/A
+- Lock now runs via background subshell `( ) &` with `ulimit -l unlimited` / `setrlimit(RLIMIT_MEMLOCK, RLIM_INFINITY)` — root cause of resident never reaching 100%
+- Resident check moved to after warm-up and before background lock, giving accurate page cache reading
+- Switched resident parsing from `-o kv` `ResidentPages=` / `Pages=` (wrong keys) to `-v` verbose `Resident Pages:` line
+
+**SystemUI Preload**
+- Replaced single `xargs -r vmtouch -dl -f -P` with proper 3-step sequence matching game preload: warm-up → resident check → background lock with `ulimit`
+
+**Daemon**
+- Fixed `refresh_loop` defined in parent script not accessible when spawned via `setsid sh -c`, replaced with `( trap '' HUP; refresh_loop ) &`
+- Added smart refresh: daemon now detects foreground package and skips refresh cycle when a game is actively running
+
+**Duplicate Execution Fix**
+- Fixed `while (fgets(...) || line[0])` loop condition in C causing last package to execute twice on EOF
+- Added in-memory seen-list dedup for gamelist processing (shell: variable string, C: array) — no temp files
+
+**C Port**
+- Replaced all hardcoded vmtouch path checks (`/system/bin/vmtouch`, etc.) with `command -v vmtouch` via `popen`, matching shell behavior and supporting any install path
+- Replaced `taskset` / `renice` / `ionice` shell wrappers with native `sched_setaffinity`, `setpriority`, `syscall(SYS_ioprio_set)`, and `sched_setscheduler`
+- Removed all `static` qualifiers from functions per project style
