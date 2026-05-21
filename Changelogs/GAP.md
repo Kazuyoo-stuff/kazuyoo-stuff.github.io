@@ -6,7 +6,7 @@
 - Fixed `pm path` output not stripping `\r` causing APK path check to always fail
 - Fixed `sort` tab separator not working on Android sh, switched to space-separated format with safe `awk` field stripping
 - Fixed `for apk in $apk_paths` word-splitting corrupting multi-line APK paths, replaced with file-based iteration
-- Added multi-directory scan covering `/data/user/0`, `/data/data`, `/storage/emulated/0/Android/data`, `/storage/emulated/0/Android/obb`
+- Added multi-directory scan covering `/data/user/0`, `/data/data`, `/storage/emulated/0/Android/obb`
 - Added OBB file inclusion alongside APK in preload list
 
 **vmtouch Command Sequence**
