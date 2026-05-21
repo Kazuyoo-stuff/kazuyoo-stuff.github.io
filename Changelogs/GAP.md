@@ -1,6 +1,6 @@
 # Changelog
 
-## [v1.2]
+## [v1.3]
 **Core Preload Logic**
 - Fixed `find -exec stat {} +` pipe subshell issue causing `raw_*.txt` to always be empty on Android sh
 - Fixed `pm path` output not stripping `\r` causing APK path check to always fail
