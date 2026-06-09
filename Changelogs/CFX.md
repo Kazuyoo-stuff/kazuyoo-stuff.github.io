@@ -43,8 +43,3 @@
 - `debug.sf.disable_backpressure 1`: SF does not stall waiting for GPU fence → reduces missed vsync
 - `latch_unsignaled` toggled between 0 and 1 across iterations based on tradeoff between missed frame count and visual quality (text texture artifacts during scroll)
 - `commit_not_composited true`, `cache_when_source_crop_layer_only_moved true`, `use_known_refresh_rate_for_fps_consistency true`, `add_sf_skipped_frames_to_trace false`
-
-**SurfaceFlinger Process Tuning**
-- `chrt -r -p 20` (SCHED_RR priority 20): safer than SCHED_FIFO 51 which can cause system freeze
-- `settaskprofile CPUSET_SP_TOP_APP` + `SCHED_SP_TOP_APP` applied to all SF threads
-- Daemon self-priority: `renice 19` + `ionice -c 3` (idle class) to avoid competing with foreground processes
