@@ -1,21 +1,12 @@
 # Changelogs
-### [v2.0]
-- Added `VM_PATH="/proc/sys/vm"` variable declaration to fix undefined variable in `optimize_memory`
-- Added thermal throttling disable: `msm_thermal core_control`, `parameters`, `cpufreq_control`, and `cpuvoltage_control` all set to `0`
-- Changed GPU thermal trip point threshold from `105000` to `95000`
-- Fixed `boost_upper_bound` from `0` to `100` to allow full GED boost range
-- Fixed `gpu_dvfs_enable` from `0` to `1` so GPU can scale up under load
-- Fixed `ged_smart_boost` from `0` to `1` to enable smart frequency boost on frame drop
-- Changed `gpu_cust_boost_freq` and `gpu_cust_upbound_freq` from hardcoded `3000000` to dynamic value read from `gpufreq_opp_dump`
-- Fixed `thermal_pwrlevel` from `1` to `0` for maximum Adreno performance
-- Fixed `throttling` from `1` to `0` to disable Adreno GPU throttling
-- Added `fsync_enable "0"` and `vsync_enable "0"` to `optimize_adreno_driver` to reduce GPU stall
-- Added devfreq `governor` set to `performance` in `optimize_adreno_driver`
-- Added `idle_timer "0"` to keep Adreno clock hot
-- Added `gpudev/nap_allowed "0"` to disable GPU NAP
-- Removed `change_task_nice "zygote" "-20"` from `optimize_task_cgroup_nice` as it has no meaningful effect
-- Added `/sys/module/sync/parameters/fsync_enabled "N"` and `vsync_enabled "N"`
-- Added `/sys/kernel/debug/msm_fb/0/fsync_enable "0"` and `vsync_enable "0"`
-- Added `/proc/sys/kernel/sched_boost "1"` to `final_optimize_gpu`
-- Added `setprop debug.sf.enable_gl_backpressure 0` for SurfaceFlinger backpressure control
-- Added dynamic ANGLE/Game Driver renderer selection based on detected renderer (`Vulkan` or `OpenGL`) using package list from `gamelist.txt`
+### [v2.1]
+- New parameter in MTK gpufreq v1/v2 tuning — max frequency lock, disabled thermal/OC/low-battery frequency limiting
+- New value in PowerVR (Imagination) GPU parameter tuning via `pvrsrvkm` and apphint debug nodes
+- New parameter in Adreno driver optimization — power level pinned to max, disabled vsync/fsync/throttling/adrenoboost, fixed clock to 1114MHz, disabled kgsl profiling and adreno idler
+- Added Mali driver optimization — DVFS enable, clock range tuning, job scheduling set to `full` serialize mode
+- Partial deletion in task scheduling optimization — renice SurfaceFlinger, HWUI, gpuservice, and composer to -20, moved to top-app cpuset group
+- Added background cgroup demotion for `netd` and hardware media codec processes
+- Added MSM performance module tuning — `gpu_oc`/`gpu_ov` enabled, `gpu_uc`/`gpu_uv` disabled, touch boost enabled
+- Added SurfaceFlinger `core_graphics` device_config overrides — refresh rate consistency, commit-not-composited handling, reduced unnecessary trace logging
+- Added ART `art_performance` device_config overrides — fast baseline compiler, register allocator spill slot reuse, app image startup cache
+- Added ADPF `game` device_config overrides — GPU actual work duration reporting enabled, SurfaceFlinger GPU hint session enabled, power-efficiency preference disabled in favor of performance
