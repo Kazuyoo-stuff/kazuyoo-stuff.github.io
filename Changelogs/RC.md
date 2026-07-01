@@ -1,12 +1,17 @@
 # Changelog
 
-## [v1.6]
-- Fixed foreground app being included in background app compaction — `compact_bg_apps` now receives `fg_pkg` and skips it explicitly.
-- Fixed empty `fg` variable causing invalid grep regex — base exclusion list built first, `fg` prepended only when non-empty.
-- Fixed daemon not staying alive — replaced bare `&` with `trap '' HUP` + `disown` to properly detach from parent shell.
-- Changed RAM thresholds from 60/70/80 to 65/75/85.
-- Changed `kill-all` threshold from >70% to >75%.
-- Changed sleep intervals to consistent integers in seconds.
-- Added `--stop` command to cleanly kill daemon and remove PID file.
-- Added `get_fg_pkg` fallback — tries `visible=true` first, falls back to `head -n1` if empty.
-- Thanks to @Java_nih_deks for fix check pid on action.
+## [v1.7-EOL]
+- Initial release — threshold-based RAM compaction daemon with screen-aware polling
+- Added RAM usage calculation via `/proc/meminfo` — uses MemTotal, MemFree, Buffers, Cached, Shmem for accurate active memory percentage
+- Added screen state detection via `debug.tracing.screen_state` with fallback to `dumpsys window displays`
+- Added foreground package detection via `cmd activity stack list` with visible=true priority fallback
+- Added background app detection — excludes foreground app, system services, launcher, input method, and common persistent apps
+- Added `compact_bg_apps` — runs `cmd activity compact full` and `send-trim-memory COMPLETE` per background process
+- Added four-tier threshold logic — CRITICAL (>85%), MODERATE (>75%), LOW (>65%), NORMAL (≤65%) with different actions and wait intervals per tier
+- CRITICAL tier — `cmd activity compact system` + `cmd activity kill-all`, no per-app compact to avoid wasted cycles before kill
+- MODERATE/LOW tier — per-app compact only, no kill-all to preserve user experience
+- NORMAL tier — per-app compact with longest wait interval (60s)
+- Added screen-off handling — skips all compaction and defaults to 60s sleep when screen is off
+- Fixed missing `WAIT` fallback when screen is off — prevents undefined `sleep` behavior on first iteration
+- Replaced `sleep 1m` with `sleep 60` for compatibility with toybox `sleep` on Android
+- Daemon launched with `trap '' HUP` + `disown` for proper session detachment
