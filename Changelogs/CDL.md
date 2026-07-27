@@ -17,4 +17,4 @@
 - Made the dropbox_max_files setting an unconditional put instead of a guarded one
 - Updated the license header to GNU GPL v3.0 or later with 2026 copyright notice
 - Added the global_setting_exists() guard in the C port so settings put global calls only run when the key already exists, matching the shell's grep -q pattern
-- Ported the entire module to a C binary (celestial_disable_log_kzyo) with matching functionality and daemon-based background detachment
+- Ported the entire module to a C binary (CDL) with matching functionality and daemon-based background detachment
