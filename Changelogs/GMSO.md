@@ -1,12 +1,9 @@
 # Changelogs
 
-### [EOL - REVISED-3]
-- Merged `gms_appops_feature` and `gms_doze_featute` into a single unified `gms_optimize` function, eliminating duplicate iteration over the same package list
-- Removed duplicate `appops set GET_USAGE_STATS ignore` that appeared twice in the appops block
-- Moved `appops write-settings` and `appops read-settings` outside the loop so they are called once after all packages are processed instead of per-iteration
-- Converted per-package loop from sequential `for` to `xargs -n1 -P3` for parallel execution across 3 workers simultaneously
-- Fixed `&> /dev/null` to `>/dev/null 2>&1` for POSIX sh compatibility
-- Moved variable declarations `GMS`, `GMS1`, `GMS2`, `sdk` to top-level scope with consistent indentation
-- Separated `wait_until_boot_completed;acquire_lock` from single chained line into two separate lines
-- Added `appops set CAPTURE_CONSENTLESS_BUGREPORT_ON_USERDEBUG_BUILD ignore`
-- Changed `cmd activity set-standby-bucket` value from `50` to `restricted`
+### [EOL - REVISED-4]
+- Reworked the lock mechanism from a permanent touch-file flag to an `mkdir` + script-hash check, so the optimization automatically re-applies whenever the script is updated instead of staying skipped forever
+- Added a `trap` on `INT`/`TERM` during lock acquisition so an interrupted run doesn't leave a stale lock behind, with the lock only finalized via `commit_lock()` after the full optimization completes successfully
+- Added `restrict_playstore()` to apply lightweight appops restrictions (background run, location, usage stats, wake lock) and standby bucket throttling to Google Play Store (`com.android.vending`)
+- Added `am force-stop` for Play Store at the end of `restrict_playstore()` to free its RAM immediately, since it's rarely used
+- Generalized the optimization status/CPU check script (`CHK_OPT`) to accept a package name and label as parameters, and added a second call for Play Store alongside Google Play Services
+- Added a revert/undo script that restores both GMS and Play Store appops, standby bucket, jobscheduler, and Doze whitelist state back to default
