@@ -1,24 +1,31 @@
 # Changelog
 
-## [v1.5]
+## [v1.6]
 
-- Added debug instrumentation to diagnose persistent `Cache Ratio: 0/0`: raw `vmtouch` output logging, per-stage file-count logging, deferred cleanup of temp lists on suspicious results
-- Received user-provided custom `vmtouch.c` fork; reviewed `-Q`/`-R`/`-t` option-validation logic
-- Received a newer, restructured `GAP.c` (fork/exec-based, `locked_list`/`extra_list` split) and `vmtouch.c` from user
-- Fixed a token-parsing bug in `measure_cache_ratio()`: the parser grabbed the *last* `/`-containing token (byte-size string) instead of the *first* (page-count ratio)
-- Added fallback inclusion of the APK file into Tier 1 candidates, based on comparison with an older shell version that worked
-- Determined the APK fallback did **not** fix the issue — `vmtouch` still reported `0/0` even for a single real APK file
-- Fixed `run_capture()` to merge child stderr into the captured pipe (previously only stdout was captured, hiding `vmtouch` warnings)
-- Root cause found: in `vmtouch.c`, `o_max_file_size` defaults to `SIZE_MAX`; casting it to `(int64_t)` overflows to `-1`, making the `len_of_file > (int64_t)o_max_file_size` check always true — every file, regardless of size, was skipped as "too large"
-- Fixed the bug in `vmtouch.c` by comparing in the unsigned domain: `(uint64_t)len_of_file > (uint64_t)o_max_file_size`
-- Verified the fix: `Cache Ratio (-Q)` now reports real percentages (confirmed via live device logs and a local reproduction test)
-- Removed the APK fallback from `GAP.c` (no longer needed — real `.so`/`.oat` files are readable now that the underlying `vmtouch` bug is fixed)
-- Merged the two-line `Cache Ratio (-Q)` / `Cache Ratio (-R)` report fields into a single `Cache Ratio` line (prefers locked/-Q value, falls back to readahead/-R, else `N/A`)
-- Progressively removed all temporary debug logging added during root-cause investigation (per-stage file counts, raw vmtouch dumps, parsed-ratio confirmations), keeping only genuinely useful failure-path logs, then removed those too once confirmed stable
-- Optimized `GAP.c` for resource usage without changing logic:
-  - `read_pid_file()` rewritten from `FILE*`/`fscanf` to direct `open()`/`read()`/`strtol()`
-  - added a matching lightweight `write_pid_file()`, replacing inline `fopen`/`fprintf`
-  - `print_status()` deduplicated to reuse `read_pid_file()` instead of its own copy of the logic
-  - `get_foreground_pkg()` changed from a 128KB `malloc`/`free` per call to a `static` buffer (called every few seconds for the life of the daemon)
-  - `measure_cache_ratio()` changed from a 64KB `malloc`/`free` per call to a `static` buffer (safe — parallelism is via `fork()`, not threads)
-- Optimized `vmtouch.c`'s `write_pidfile()`: fixed a latent bug where the `size_t` return-value check could never detect a write failure, and converted it to lightweight `open()`/`write()`
+- Fixed cache ratio reporting by initially adding a native `mincore()`-based residency check (`cachecheck` helper) as a workaround, later replaced once the underlying vmtouch bug itself was found and fixed
+- Removed `.apk` from the engine-tier file detection entirely (previously `install_dir`'s base APK could consume `file_limit`/`budget_mb` slots that are better spent on `lib`/`oat`/`.dm`/`.vdex`/`.odex`)
+- Diagnosed why cache ratio always read exactly 100%: the measurement was taken immediately after the touch call on the same file list, which is tautological (touch guarantees residency at that instant) rather than reflecting real-world residency at game-launch time
+- Added (then, per user request, removed again for simplicity) a `recheck_cache_ratio()` feature that re-measured residency of the previously preloaded file lists at the moment a tracked game actually launched, logging results to a separate non-rotating log file
+- Reviewed and rejected a "global preload" variant proposed by the user containing:
+  - A fatal bug: process substitution (`< <(...)`) which is not supported by Android's `/system/bin/sh`
+  - A budget-per-fleet-of-games design instead of per-game budget, which could starve smaller games
+  - `MIN_FILE_SIZE_MB=5` raised from the previous 512KB threshold, shown to exclude most real asset files for lighter games based on prior log data
+- Reviewed and fixed a bug in a `get_fg_pkg()` rewrite where `refresh_loop` still called the old, now-undefined function name (`get_foreground_pkg`), silently breaking foreground-game detection entirely
+- Fixed `get_fg_pkg()` to keep a fast-path query (`cmd activity stack info 1 0`) with fallback to `cmd activity stack list`, restoring a `visible=true` filter in the fallback path that had been dropped
+- Extracted and reviewed the actual packaged Magisk module (zip) and diagnosed `build_game_list()` in `service.sh`:
+  - Found `dumpsys game` output was treated as sufficient on its own, short-circuiting the comprehensive `pm list packages -3 | grep -Ff` scan whenever `dumpsys game` returned even one entry — since `dumpsys game` only reflects currently/recently active games, this caused only 1 game to ever be detected
+  - Fixed by always running the comprehensive scan and unioning it with `dumpsys game`'s results instead of treating the latter as an early-exit condition
+
+
+# vmtouch — motified
+  
+- Took the pristine, unmodified upstream source (Doug Hoyte, v1.3.1) as a clean baseline and confirmed the `stdout`-reopened-twice / missing-`stderr` bug and the `INT64_MAX`/`double` comparison warning both already existed upstream, not introduced by prior modifications
+- Built a "high performance, stable, no added overhead" version from that clean baseline:
+  - Added `posix_fadvise(POSIX_FADV_SEQUENTIAL | POSIX_FADV_WILLNEED)` before touch-mode mmaps
+  - Added `MAP_POPULATE` for touch-mode mmaps, with fallback to a plain `mmap()` if it fails
+  - Added `madvise(MADV_DONTDUMP)` on all mappings and `MADV_WILLNEED` for touch mode
+  - Made the touch loop reuse the `mincore()` result that was already computed (no extra syscall) and only re-touch pages that are verifiably *not* resident yet — avoiding the double-work of touching pages `MAP_POPULATE` already faulted in, without blindly trusting that it always fully succeeds
+  - Added a `__builtin_prefetch()` hint scoped only to pages that actually need touching
+  - Applied the same heap-allocated `npath` fix, `reopen_all()` fix, and `parse_size()` cast fix as above
+  - Verified with a full smoke test cycle: evict → cold verify → touch+verbose → hot verify → `-o kv` output → nested-directory recursion, all compiling with zero warnings
+  
