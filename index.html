@@ -4,218 +4,135 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Celestial Lab — by Kazuyoo</title>
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <style>
   :root{
-    --primary:#a8c8ff; --on-primary:#003062;
-    --primary-container:#00458f; --on-primary-container:#d6e3ff;
-    --secondary-container:#3b4858; --on-secondary-container:#d7e3f7;
-    --error:#ffb4ab;
-    --bg:#131417; --on-bg:#e3e2e6;
-    --surface-1:#1a1c20; --surface-2:#1f2226; --surface-3:#26292e;
-    --outline:#8a8d94; --outline-variant:#34373c;
-    --r-s:10px; --r-m:14px; --r-l:18px; --r-full:100px;
+    --bg:#0a0b12;
+    --ink:#f3f4fa; --ink-dim:rgba(243,244,250,.64); --ink-faint:rgba(243,244,250,.4);
+    --surface:rgba(255,255,255,.05); --surface-strong:rgba(255,255,255,.09);
+    --border:rgba(255,255,255,.13);
+    --blob-a:#7c8cff; --blob-b:#5fd8ff; --blob-c:#d98bff;
+    --accent:#b7c3ff;
+    --r-s:14px; --r-m:20px; --r-l:24px; --r-full:999px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{scrollbar-width:none;}
   html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none;}
-
-  /* fix overscroll bubble: html needs same bg as body, and kill rubber-band bounce colour flash */
   html{background:var(--bg);}
   body{
-    background:var(--bg);color:var(--on-bg);font-family:'Roboto',sans-serif;
-    min-height:100vh;overflow-x:hidden;
-    overscroll-behavior-y:none;
-    -webkit-overflow-scrolling:touch;
+    background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;
+    min-height:100vh;overflow-x:hidden;position:relative;
+    overscroll-behavior-y:none;-webkit-overflow-scrolling:touch;
   }
 
+  /* static gradient wash — no per-frame blur cost while scrolling */
+  .bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(480px 380px at 8% -6%, rgba(124,140,255,.30), transparent 60%),
+      radial-gradient(420px 360px at 108% 34%, rgba(95,216,255,.22), transparent 60%),
+      radial-gradient(460px 400px at 14% 96%, rgba(217,139,255,.20), transparent 60%);
+  }
+
+  /* only these two fixed chrome elements carry a live blur — cheap since they don't repaint with scroll content */
   .top-app-bar{
-    position:sticky;top:0;z-index:100;
-    background:color-mix(in srgb,var(--bg) 78%,transparent);
-    backdrop-filter:blur(18px) saturate(140%);
-    -webkit-backdrop-filter:blur(18px) saturate(140%);
-    border-bottom:1px solid color-mix(in srgb,var(--outline-variant) 70%,transparent);
-    padding:0 16px;height:58px;display:flex;align-items:center;gap:10px;
+    position:sticky;top:12px;z-index:100;margin:12px 16px 0;
+    background:var(--surface);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);
+    border:1px solid var(--border);border-radius:var(--r-full);
+    padding:0 18px;height:52px;display:flex;align-items:center;gap:10px;
   }
-  .top-app-bar .app-icon{width:30px;height:30px;background:var(--primary-container);border-radius:var(--r-s);display:flex;align-items:center;justify-content:center;}
-  .top-app-bar .app-icon .material-icons-round{color:var(--on-primary-container);font-size:16px;}
-  .top-app-bar .title{font-family:'Google Sans',sans-serif;font-size:16px;font-weight:500;line-height:1.15;}
-  .top-app-bar .headline-sub{font-size:10.5px;color:var(--outline);}
+  .top-app-bar .app-icon{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--blob-a),var(--blob-c));display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .top-app-bar .app-icon .material-icons-round{color:#0a0b12;font-size:16px;}
+  .top-app-bar .title{font-family:'Plus Jakarta Sans',sans-serif;font-size:15.5px;font-weight:700;line-height:1.15;}
+  .top-app-bar .headline-sub{font-size:10.5px;color:var(--ink-faint);}
 
-  .main{padding:0 16px;padding-bottom:calc(74px + env(safe-area-inset-bottom));}
+  .main{position:relative;z-index:1;padding:0 0 calc(100px + env(safe-area-inset-bottom));}
   .section{display:none;} .section.active{display:block;}
+  .pad{padding-left:20px;padding-right:20px;}
 
-  /* ── HEADER CARD ── */
-  .header-card{
-    margin:16px 0 8px;
-    background:var(--surface-2);
-    border:1px solid var(--outline-variant);
-    border-radius:var(--r-l);
-    overflow:hidden;
-  }
-  .header-card .cover{
-    height:100px;width:100%;object-fit:cover;display:block;
-    border-bottom:1px solid var(--outline-variant);
-  }
-  .header-card .body{padding:16px;}
-  .header-row{display:flex;align-items:center;gap:12px;margin-top:-38px;}
-  .avatar-ring{
-    width:64px;height:64px;border-radius:50%;
-    background:var(--surface-2);padding:3px;flex-shrink:0;
-  }
+  /* ── HERO — full-bleed photo, no overlapping-avatar card cliché ── */
+  .hero-photo{width:100%;height:200px;object-fit:cover;display:block;border-radius:0 0 28px 28px;}
+  .hero-id{display:flex;align-items:center;gap:12px;margin-top:16px;}
   .avatar{
-    width:100%;height:100%;border-radius:50%;
-    background:var(--primary-container);color:var(--on-primary-container);
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Google Sans Display',sans-serif;font-size:22px;font-weight:700;
+    width:46px;height:46px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,var(--blob-a),var(--blob-b),var(--blob-c));
+    color:#0a0b12;display:flex;align-items:center;justify-content:center;
+    font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;
   }
-  .header-name{font-family:'Google Sans',sans-serif;font-size:16px;font-weight:500;margin-top:22px;}
-  .header-loc{font-size:12px;color:var(--outline);display:flex;align-items:center;gap:4px;margin-top:2px;}
-  .header-loc .material-icons-round{font-size:12px;}
-  .header-desc{font-size:13px;line-height:1.55;color:var(--on-bg);opacity:0.85;margin-top:14px;}
-  .header-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .hero-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:19px;font-weight:800;}
+  .hero-loc{font-size:12px;color:var(--ink-faint);display:flex;align-items:center;gap:4px;margin-top:2px;}
+  .hero-loc .material-icons-round{font-size:12px;}
+  .hero-desc{font-size:14px;line-height:1.65;color:var(--ink-dim);margin-top:16px;max-width:34em;}
+  .tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
   .tag{
-    display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 11px;
-    border-radius:var(--r-full);background:var(--surface-3);
-    border:1px solid var(--outline-variant);font-size:11.5px;
-    font-family:'Google Sans',sans-serif;color:var(--on-bg);opacity:0.85;
+    display:inline-flex;align-items:center;gap:5px;height:29px;padding:0 12px;
+    border-radius:var(--r-full);background:var(--surface);
+    border:1px solid var(--border);font-size:11.5px;
+    font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;color:var(--ink-dim);
   }
-  .tag .material-icons-round{font-size:13px;color:var(--primary);}
+  .tag .material-icons-round{font-size:13px;color:var(--accent);}
 
-  .section-label{
-    font-family:'Google Sans',sans-serif;font-size:11px;font-weight:500;
-    letter-spacing:1px;text-transform:uppercase;color:var(--outline);
-    padding:18px 2px 10px;
-  }
+  .h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:var(--ink);padding:26px 0 8px;}
+  .p{font-size:13.5px;line-height:1.7;color:var(--ink-dim);}
+  .rule{height:1px;background:var(--border);margin:18px 0;}
 
+  /* a "card" is reserved for the one thing on a screen that wants to act like a button/CTA */
   .card{
-    background:var(--surface-2);border:1px solid var(--outline-variant);
-    border-radius:var(--r-l);padding:16px;margin-bottom:12px;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r-l);
+    padding:18px;margin-top:10px;
   }
-  .card-title{font-family:'Google Sans',sans-serif;font-size:14.5px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-  .card-title .material-icons-round{color:var(--primary);font-size:18px;}
-  .card-body{font-size:13px;line-height:1.6;color:var(--on-bg);opacity:0.8;}
-  .divider{height:1px;background:var(--outline-variant);margin:12px 0;}
+  .card-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+  .card-title .material-icons-round{color:var(--accent);font-size:18px;}
 
-  /* ── SOCIAL GRID ── */
-  .social-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  .social-tile{
-    display:flex;flex-direction:column;align-items:center;gap:8px;
-    padding:16px 8px;border-radius:var(--r-m);
-    background:var(--surface-3);border:1px solid var(--outline-variant);
-    text-decoration:none;color:var(--on-bg);text-align:center;
-    transition:transform 150ms cubic-bezier(.2,0,0,1), background 150ms;
+  /* ── links row: horizontal scroll strip instead of a uniform icon grid ── */
+  .link-row{display:flex;gap:8px;overflow-x:auto;padding:2px 20px 6px;margin:0 -20px;}
+  .link-chip{
+    flex-shrink:0;display:flex;align-items:center;gap:9px;height:46px;padding:0 8px 0 8px;
+    border-radius:var(--r-full);background:var(--surface);border:1px solid var(--border);
+    text-decoration:none;color:var(--ink);white-space:nowrap;
   }
-  .social-tile:active{transform:scale(.96);background:color-mix(in srgb,var(--surface-3) 80%, var(--primary) 6%);}
-  .social-tile .icon-box{
-    width:38px;height:38px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    background:var(--surface-2);
-  }
-  .social-tile .label{font-size:11.5px;font-family:'Google Sans',sans-serif;font-weight:500;}
-  .social-tile .handle{font-size:10px;color:var(--outline);}
-
-  /* ── MODULE GRID ── */
-  .search-bar{
-    display:flex;align-items:center;gap:10px;background:var(--surface-2);
-    border-radius:var(--r-full);padding:0 16px;height:44px;margin:16px 0 12px;
-    border:1px solid var(--outline-variant);
-  }
-  .search-bar .material-icons-round{color:var(--outline);font-size:18px;}
-  .search-bar input{flex:1;background:transparent;border:none;outline:none;font-size:13.5px;color:var(--on-bg);font-family:'Roboto',sans-serif;}
-  .search-bar input::placeholder{color:var(--outline);}
-
-  .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:14px;}
-  .filter-chip{
-    display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 13px;
-    border-radius:var(--r-full);background:transparent;border:1px solid var(--outline);
-    font-size:12px;font-family:'Google Sans',sans-serif;color:var(--outline);
-    white-space:nowrap;flex-shrink:0;
-    transition:background 200ms, color 200ms, border-color 200ms;
-  }
-  .filter-chip.active{
-    background:color-mix(in srgb,var(--secondary-container) 92%, white 3%);
-    color:var(--on-secondary-container);border-color:transparent;
-  }
-  .filter-chip .material-icons-round{font-size:14px;}
-
-  .module-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-items:stretch;}
-  .module-card{
-    display:flex;flex-direction:column;justify-content:space-between;gap:10px;
-    background:var(--surface-2);border:1px solid var(--outline-variant);
-    border-radius:var(--r-m);padding:14px;
-    transition:transform 150ms cubic-bezier(.2,0,0,1);
-  }
-  .module-card:active{transform:scale(.98);}
-  .module-icon{
-    width:34px;height:34px;border-radius:var(--r-s);
-    background:var(--primary-container);display:flex;align-items:center;justify-content:center;
-  }
-  .module-icon .material-icons-round{color:var(--on-primary-container);font-size:17px;}
-  .module-name{font-family:'Google Sans',sans-serif;font-size:13px;font-weight:500;line-height:1.3;margin-top:9px;}
-  .module-ver{
-    display:inline-block;font-size:10px;background:var(--secondary-container);
-    color:var(--on-secondary-container);border-radius:var(--r-full);padding:1px 8px;margin-top:5px;
-  }
-  .module-ver.eol{background:rgba(255,180,171,.14);color:var(--error);}
-  .module-desc{font-size:11.5px;line-height:1.5;color:var(--outline);flex:1;}
-  .dl-btn{
-    display:flex;align-items:center;justify-content:center;gap:5px;
-    height:32px;border-radius:var(--r-full);background:var(--surface-3);
-    color:var(--on-bg);font-size:12px;font-family:'Google Sans',sans-serif;
-    text-decoration:none;border:1px solid var(--outline-variant);
-    transition:background 150ms;
-  }
-  .dl-btn:active{background:color-mix(in srgb,var(--surface-3) 80%, var(--primary) 8%);}
-  .dl-btn .material-icons-round{font-size:14px;}
+  .link-chip .ic{width:32px;height:32px;border-radius:50%;background:var(--surface-strong);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .link-chip .txt{display:flex;flex-direction:column;line-height:1.2;padding-right:12px;}
+  .link-chip .txt b{font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;}
+  .link-chip .txt span{font-size:10px;color:var(--ink-faint);}
 
   .btn{
-    display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 16px;
-    border-radius:var(--r-full);font-family:'Google Sans',sans-serif;font-size:13px;font-weight:500;
+    display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 18px;
+    border-radius:var(--r-full);font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;font-weight:600;
     text-decoration:none;border:none;transition:transform 150ms;
   }
-  .btn:active{transform:scale(.97);}
-  .btn-filled{background:var(--primary);color:var(--on-primary);}
-  .btn-tonal{background:var(--secondary-container);color:var(--on-secondary-container);}
-  .btn .material-icons-round{font-size:15px;}
+  .btn:active{transform:scale(.96);}
+  .btn-filled{background:linear-gradient(135deg,var(--blob-a),var(--blob-c));color:#0a0b12;}
+  .btn-tonal{background:var(--surface-strong);border:1px solid var(--border);color:var(--ink);}
+  .btn .material-icons-round{font-size:16px;}
 
-  #emptyState{display:none;text-align:center;padding:40px 0;color:var(--outline);grid-column:1/-1;}
+  .footer-note{text-align:center;font-size:11.5px;color:var(--ink-faint);padding:24px 0 16px;}
 
-  .footer-note{text-align:center;font-size:11.5px;color:var(--outline);padding:10px 0 14px;}
-
-  /* ── NAV BAR — softened, glassy ── */
+  /* ── NAV BAR — the only other element allowed to carry live blur ── */
   .nav-bar{
-    position:fixed;bottom:0;left:0;right:0;
-    background:color-mix(in srgb,var(--surface-2) 65%,transparent);
-    backdrop-filter:blur(20px) saturate(150%);
-    -webkit-backdrop-filter:blur(20px) saturate(150%);
-    border-top:1px solid color-mix(in srgb,var(--outline-variant) 60%,transparent);
+    position:fixed;bottom:14px;left:16px;right:16px;z-index:100;
+    background:var(--surface);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
+    border:1px solid var(--border);border-radius:var(--r-full);
     display:flex;justify-content:space-around;
-    padding:8px 8px max(8px, env(safe-area-inset-bottom));z-index:100;
+    padding:7px;padding-bottom:max(7px, env(safe-area-inset-bottom));
   }
-  .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer;}
+  .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer;padding:4px 0;}
   .nav-indicator{
     width:52px;height:30px;border-radius:var(--r-full);
-    display:flex;align-items:center;justify-content:center;
-    background:transparent;
-    border:1px solid transparent;
-    transition:background 220ms cubic-bezier(.2,0,0,1),
-               border-color 220ms cubic-bezier(.2,0,0,1),
-               box-shadow 220ms cubic-bezier(.2,0,0,1);
+    display:flex;align-items:center;justify-content:center;background:transparent;
+    transition:background 220ms cubic-bezier(.2,0,0,1);
   }
-  .nav-item.active .nav-indicator{
-    background:color-mix(in srgb,var(--secondary-container) 85%, white 4%);
-    border-color:color-mix(in srgb,white 10%, transparent);
-    box-shadow:inset 0 1px 0 color-mix(in srgb,white 12%, transparent);
-  }
-  .nav-item .material-icons-round{font-size:20px;color:var(--outline);transition:color 220ms;}
-  .nav-item.active .material-icons-round{color:var(--on-secondary-container);}
-  .nav-label{font-size:10.5px;font-family:'Google Sans',sans-serif;color:var(--outline);transition:color 220ms;}
-  .nav-item.active .nav-label{color:var(--on-secondary-container);font-weight:500;}
+  .nav-item.active .nav-indicator{background:linear-gradient(135deg,var(--blob-a),var(--blob-c));}
+  .nav-item .material-icons-round{font-size:20px;color:var(--ink-faint);transition:color 220ms;}
+  .nav-item.active .material-icons-round{color:#0a0b12;}
+  .nav-label{font-size:10.5px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink-faint);transition:color 220ms;}
+  .nav-item.active .nav-label{color:var(--ink);font-weight:600;}
 </style>
 </head>
 <body>
+
+<div class="bg-orbs"></div>
 
 <div class="top-app-bar">
   <div class="app-icon"><span class="material-icons-round">science</span></div>
@@ -230,204 +147,106 @@
   <!-- ═══ HOME ═══ -->
   <div id="home" class="section active">
 
-    <div class="header-card">
-      <img class="cover" src="https://raw.githubusercontent.com/Kazuyoo-stuff/kazuyoo-stuff.github.io/740491a80e10690938b3f4c607ae68e9b94bd389/IMG/IMG_20250525_094654.jpg" alt="cover">
-      <div class="body">
-        <div class="header-row">
-          <div class="avatar-ring"><div class="avatar">D</div></div>
-          <div>
-            <div class="header-name">Diki Nur Rohmat</div>
-            <div class="header-loc"><span class="material-icons-round">location_on</span> Kebumen, Central Java, Indonesia</div>
-          </div>
-        </div>
-        <p class="header-desc">Just an ordinary high school student and independent developer who loves exploring Android internals — from light tweaks and performance enhancements to advanced system experiments.</p>
-        <div class="header-tags">
-          <div class="tag"><span class="material-icons-round">android</span> Android Dev</div>
-          <div class="tag"><span class="material-icons-round">memory</span> Kernel Tuner</div>
-          <div class="tag"><span class="material-icons-round">bolt</span> Optimizer</div>
+    <img class="hero-photo" src="https://raw.githubusercontent.com/Kazuyoo-stuff/kazuyoo-stuff.github.io/740491a80e10690938b3f4c607ae68e9b94bd389/IMG/IMG_20250525_094654.jpg" alt="cover">
+
+    <div class="pad">
+      <div class="hero-id">
+        <div class="avatar">D</div>
+        <div>
+          <div class="hero-name">Diki Nur Rohmat</div>
+          <div class="hero-loc"><span class="material-icons-round">location_on</span> Kebumen, Central Java, Indonesia</div>
         </div>
       </div>
+
+      <p class="hero-desc">Just an ordinary high school student and independent developer who loves exploring Android internals — from light tweaks and performance enhancements to advanced system experiments.</p>
+
+      <div class="tag-row">
+        <div class="tag"><span class="material-icons-round">android</span> Android Dev</div>
+        <div class="tag"><span class="material-icons-round">memory</span> Kernel Tuner</div>
+        <div class="tag"><span class="material-icons-round">bolt</span> Optimizer</div>
+      </div>
+
+      <div class="rule"></div>
+
+      <div class="h2">What is Celestial Lab?</div>
+      <p class="p">Celestial Lab is where Android optimization experiments, tweaks, and lightweight modules are born. Every project is built around three pillars: efficiency, stability, and control — independently developed to improve performance and user experience across various Android devices.</p>
     </div>
 
-    <div class="section-label">About Project</div>
-    <div class="card">
-      <div class="card-title"><span class="material-icons-round">rocket_launch</span> What is Celestial Lab?</div>
-      <p class="card-body">Celestial Lab is where Android optimization experiments, tweaks, and lightweight modules are born. Every project is built around three pillars: efficiency, stability, and control.</p>
-      <div class="divider"></div>
-      <p class="card-body">All projects and tools here are independently developed to improve performance and user experience across various Android devices.</p>
-    </div>
-
-    <div class="section-label">Social Media</div>
-    <div class="social-grid">
-      <a class="social-tile" href="https://youtube.com/@kazuyooopensources" target="_blank">
-        <div class="icon-box"><span class="material-icons-round" style="color:#ff6b6b;">smart_display</span></div>
-        <div class="label">YouTube</div><div class="handle">@kazuyooopensources</div>
+    <div class="h2 pad">Elsewhere</div>
+    <div class="link-row">
+      <a class="link-chip" href="https://youtube.com/@kazuyooopensources" target="_blank">
+        <div class="ic"><span class="material-icons-round" style="color:#ff6b6b;font-size:16px;">smart_display</span></div>
+        <div class="txt"><b>YouTube</b><span>@kazuyooopensources</span></div>
       </a>
-      <a class="social-tile" href="https://t.me/KzyoCh" target="_blank">
-        <div class="icon-box"><span class="material-icons-round" style="color:#4fa8e0;">send</span></div>
-        <div class="label">Telegram</div><div class="handle">@KzyoCh</div>
+      <a class="link-chip" href="https://t.me/KzyoCh" target="_blank">
+        <div class="ic"><span class="material-icons-round" style="color:#5fd8ff;font-size:16px;">send</span></div>
+        <div class="txt"><b>Telegram</b><span>@KzyoCh</span></div>
       </a>
-      <a class="social-tile" href="https://t.me/KzyoDisc" target="_blank">
-        <div class="icon-box"><span class="material-icons-round" style="color:#4fa8e0;">forum</span></div>
-        <div class="label">Discussion</div><div class="handle">@KzyoDisc</div>
+      <a class="link-chip" href="https://t.me/KzyoDisc" target="_blank">
+        <div class="ic"><span class="material-icons-round" style="color:#5fd8ff;font-size:16px;">forum</span></div>
+        <div class="txt"><b>Discussion</b><span>@KzyoDisc</span></div>
       </a>
-      <a class="social-tile" href="http://tiktok.com/@dikicl26" target="_blank">
-        <div class="icon-box"><span class="material-icons-round" style="color:#dedede;">music_note</span></div>
-        <div class="label">TikTok</div><div class="handle">@dikicl26</div>
+      <a class="link-chip" href="http://tiktok.com/@dikicl26" target="_blank">
+        <div class="ic"><span class="material-icons-round" style="color:#e3e2e6;font-size:16px;">music_note</span></div>
+        <div class="txt"><b>TikTok</b><span>@dikicl26</span></div>
       </a>
-      <a class="social-tile" href="https://www.instagram.com/dkinrhmt" target="_blank">
-        <div class="icon-box"><span class="material-icons-round" style="color:#e07dae;">photo_camera</span></div>
-        <div class="label">Instagram</div><div class="handle">@dkinrhmt</div>
+      <a class="link-chip" href="https://www.instagram.com/dkinrhmt" target="_blank">
+        <div class="ic"><span class="material-icons-round" style="color:#e07dae;font-size:16px;">photo_camera</span></div>
+        <div class="txt"><b>Instagram</b><span>@dkinrhmt</span></div>
       </a>
-      <a class="social-tile" href="https://github.com/Kazuyoo-stuff" target="_blank">
-        <div class="icon-box"><span class="material-icons-round" style="color:#e3e2e6;">code</span></div>
-        <div class="label">GitHub</div><div class="handle">Kazuyoo-stuff</div>
+      <a class="link-chip" href="https://github.com/Kazuyoo-stuff" target="_blank">
+        <div class="ic"><span class="material-icons-round" style="color:#e3e2e6;font-size:16px;">code</span></div>
+        <div class="txt"><b>GitHub</b><span>Kazuyoo-stuff</span></div>
       </a>
     </div>
 
     <div class="footer-note">Thanks for visiting.</div>
   </div>
 
-  <!-- ═══ MODULES ═══ -->
-  <div id="modules" class="section">
-    <div class="search-bar">
-      <span class="material-icons-round">search</span>
-      <input type="text" id="searchInput" placeholder="Search modules…" oninput="filterModules()">
+  <!-- ═══ PROJECTS ═══ -->
+  <div id="modules" class="section pad">
+    <div style="height:20px"></div>
+
+    <div class="h2" style="padding-top:0;">What I Build</div>
+    <p class="p">Every project under Celestial Lab is an Android system-level experiment — kernel tweaks, rendering pipelines, RAM handling, thermal behavior, and UI smoothness — aimed at squeezing more out of a phone without touching the stock experience it was built on. Modules range from small single-purpose tweaks to full WebUI tools, all developed and maintained solo, and shared for free with anyone running a rooted device.</p>
+
+    <div class="tag-row">
+      <div class="tag"><span class="material-icons-round">sports_esports</span> Gaming Performance</div>
+      <div class="tag"><span class="material-icons-round">developer_board</span> Kernel Tuning</div>
+      <div class="tag"><span class="material-icons-round">memory</span> RAM &amp; Thermal</div>
+      <div class="tag"><span class="material-icons-round">brush</span> Rendering</div>
+      <div class="tag"><span class="material-icons-round">touch_app</span> UI Smoothness</div>
     </div>
 
-    <div class="filter-row">
-      <div class="filter-chip active" data-filter="all" onclick="setFilter(this,'all')"><span class="material-icons-round">apps</span> All</div>
-      <div class="filter-chip" data-filter="active" onclick="setFilter(this,'active')"><span class="material-icons-round">check_circle</span> Active</div>
-      <div class="filter-chip" data-filter="eol" onclick="setFilter(this,'eol')"><span class="material-icons-round">archive</span> EOL</div>
-    </div>
-
-    <div class="module-grid" id="moduleList">
-
-      <div class="module-card" data-status="active" data-name="Celestial-Game-Opt gaming performance WebUI">
-        <div><div class="module-icon"><span class="material-icons-round">sports_esports</span></div>
-        <div class="module-name">Celestial-Game-Opt</div><span class="module-ver">v3.2 · WebUI</span></div>
-        <div class="module-desc">Tweaks &amp; improvements for better gaming performance.</div>
-        <a class="dl-btn" href="https://sfl.gl/MZ6Bzxso" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="active" data-name="Celestial-Flinger-Flux display smoothness responsiveness">
-        <div><div class="module-icon"><span class="material-icons-round">display_settings</span></div>
-        <div class="module-name">Celestial-Flinger-Flux</div><span class="module-ver">v2.4</span></div>
-        <div class="module-desc">Improve display smoothness and responsiveness.</div>
-        <a class="dl-btn" href="https://sfl.gl/cePudHrj" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="active" data-name="Celestial-Disable-Log tracking statistics">
-        <div><div class="module-icon"><span class="material-icons-round">block</span></div>
-        <div class="module-name">Celestial-Disable-Log</div><span class="module-ver">v1.4</span></div>
-        <div class="module-desc">Minimize tracking / statistics activity.</div>
-        <a class="dl-btn" href="https://sfl.gl/yxQr8b" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="eol" data-name="Celestial-Network-Opt network speed wifi">
-        <div><div class="module-icon"><span class="material-icons-round">wifi</span></div>
-        <div class="module-name">Celestial-Network-Opt</div><span class="module-ver eol">EOL</span></div>
-        <div class="module-desc">Increase network speed (Data or Wi-Fi).</div>
-        <a class="dl-btn" href="https://sfl.gl/nAEO722A" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="active" data-name="Celestial-Render-FlowX rendering graphics performance">
-        <div><div class="module-icon"><span class="material-icons-round">grain</span></div>
-        <div class="module-name">Celestial-Render-FlowX</div><span class="module-ver">v2.1G Series</span></div>
-        <div class="module-desc">Improved rendering speed &amp; graphics performance.</div>
-        <a class="dl-btn" href="https://sfl.gl/S4F4R1" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="active" data-name="Celestial-Kernel-Tweaks kernel performance efficiency">
-        <div><div class="module-icon"><span class="material-icons-round">developer_board</span></div>
-        <div class="module-name">Celestial-Kernel-Tweaks</div><span class="module-ver">v1.6T</span></div>
-        <div class="module-desc">Improve performance &amp; efficiency via kernel settings.</div>
-        <a class="dl-btn" href="https://sfl.gl/3Sfn" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="active" data-name="Celestial-Thermal temperature regulation">
-        <div><div class="module-icon"><span class="material-icons-round">device_thermostat</span></div>
-        <div class="module-name">Celestial-Thermal</div><span class="module-ver">v1.5</span></div>
-        <div class="module-desc">Disables the temperature regulation system.</div>
-        <a class="dl-btn" href="https://sfl.gl/qGNgE" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="eol" data-name="GMS Optimizer Google Play battery">
-        <div><div class="module-icon"><span class="material-icons-round">battery_saver</span></div>
-        <div class="module-name">GMS - Optimizer</div><span class="module-ver eol">EOL · Rev-3</span></div>
-        <div class="module-desc">Reduce Google Play services overhead &amp; battery use.</div>
-        <a class="dl-btn" href="https://sfl.gl/TxjAQT" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="active" data-name="Unisoc Priority UFW gaming">
-        <div><div class="module-icon"><span class="material-icons-round">flash_on</span></div>
-        <div class="module-name">Unisoc - Priority - UFW</div><span class="module-ver">v1.3</span></div>
-        <div class="module-desc">Dynamic Unisoc UFW optimization for smoother gaming.</div>
-        <a class="dl-btn" href="https://sfl.gl/JW248c" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="eol" data-name="Ram Compaction RAM usage memory">
-        <div><div class="module-icon"><span class="material-icons-round">memory</span></div>
-        <div class="module-name">Ram - Compaction</div><span class="module-ver eol">v1.7-EOL</span></div>
-        <div class="module-desc">Reduce RAM usage without stopping app processes.</div>
-        <a class="dl-btn" href="https://sfl.gl/nAEO722A" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="active" data-name="SkiaGL Renderer rendering">
-        <div><div class="module-icon"><span class="material-icons-round">brush</span></div>
-        <div class="module-name">SkiaGL - Renderer</div><span class="module-ver">Latest</span></div>
-        <div class="module-desc">Switch rendering pipeline to SkiaGL.</div>
-        <a class="dl-btn" href="https://sfl.gl/17w4" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="active" data-name="SkiaVK Renderer Vulkan rendering">
-        <div><div class="module-icon"><span class="material-icons-round">auto_fix_high</span></div>
-        <div class="module-name">SkiaVK - Renderer</div><span class="module-ver">Latest</span></div>
-        <div class="module-desc">Switch rendering pipeline to SkiaVK (Vulkan-based).</div>
-        <a class="dl-btn" href="https://sfl.gl/C2iD5RR1" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div class="module-card" data-status="eol" data-name="Smooth User Interface UI responsiveness smoothness">
-        <div><div class="module-icon"><span class="material-icons-round">touch_app</span></div>
-        <div class="module-name">Smooth-User-Interface</div><span class="module-ver eol">EOL · Remake</span></div>
-        <div class="module-desc">Improve UI responsiveness &amp; overall smoothness.</div>
-        <a class="dl-btn" href="https://sfl.gl/DWda5Y" download><span class="material-icons-round">download</span> Download</a>
-      </div>
-
-      <div id="emptyState">
-        <span class="material-icons-round" style="font-size:42px;opacity:.4;">search_off</span>
-        <p style="margin-top:8px;font-size:13px;">No modules found</p>
-      </div>
+    <div class="card">
+      <div class="card-title"><span class="material-icons-round">send</span> All Modules, on Telegram</div>
+      <p class="p" style="margin-bottom:14px;">The full, up-to-date list of modules — with download links and changelogs — is posted and kept current in the Telegram channel.</p>
+      <a class="btn btn-filled" href="https://t.me/KzyoCh" target="_blank"><span class="material-icons-round">send</span> Open Telegram Channel</a>
     </div>
   </div>
 
   <!-- ═══ SUPPORT ═══ -->
-  <div id="support" class="section">
-    <div style="height:16px"></div>
+  <div id="support" class="section pad">
+    <div style="height:20px"></div>
+
     <div class="card">
       <div class="card-title"><span class="material-icons-round">volunteer_activism</span> Support the Dev</div>
-      <p class="card-body" style="margin-bottom:14px;">Celestial Lab is built solo with passion. Your support keeps experiments running and new modules coming.</p>
+      <p class="p" style="margin-bottom:14px;">Celestial Lab is built solo with passion. Your support keeps experiments running and new modules coming.</p>
       <a class="btn btn-filled" href="https://t.me/KzyoCh/1650" target="_blank"><span class="material-icons-round">favorite</span> Support</a>
     </div>
 
-    <div class="section-label">Get Help</div>
-    <div class="card">
-      <div class="card-title"><span class="material-icons-round">support_agent</span> Need Assistance?</div>
-      <p class="card-body" style="margin-bottom:14px;">Encountered an issue? Reach out via Telegram or browse the GitHub repositories for documentation and changelogs.</p>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <a class="btn btn-tonal" href="https://t.me/Kzuyoo" target="_blank" style="width:fit-content;"><span class="material-icons-round">send</span> t.me/Kzuyoo</a>
-        <a class="btn btn-tonal" href="https://github.com/Kazuyoo-stuff" target="_blank" style="width:fit-content;"><span class="material-icons-round">code</span> GitHub Repositories</a>
-      </div>
+    <div class="h2">Need Assistance?</div>
+    <p class="p" style="margin-bottom:12px;">Encountered an issue? Reach out via Telegram or browse the GitHub repositories for documentation and changelogs.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <a class="btn btn-tonal" href="https://t.me/Kzuyoo" target="_blank" style="width:fit-content;"><span class="material-icons-round">send</span> t.me/Kzuyoo</a>
+      <a class="btn btn-tonal" href="https://github.com/Kazuyoo-stuff" target="_blank" style="width:fit-content;"><span class="material-icons-round">code</span> GitHub Repositories</a>
     </div>
 
-    <div class="section-label">Project Info</div>
-    <div class="card">
-      <div class="card-title"><span class="material-icons-round">info</span> Open Source &amp; Community</div>
-      <p class="card-body">All modules are free to use and shared openly. If you find a bug or have a suggestion, feel free to open an issue on GitHub or post in the Telegram discussion group.</p>
-      <div class="header-tags" style="margin-top:12px;">
-        <div class="tag"><span class="material-icons-round">public</span> Free &amp; Open</div>
-        <div class="tag"><span class="material-icons-round">groups</span> Community</div>
-      </div>
+    <div class="h2">Open Source &amp; Community</div>
+    <p class="p">All modules are free to use and shared openly. If you find a bug or have a suggestion, feel free to open an issue on GitHub or post in the Telegram discussion group.</p>
+    <div class="tag-row">
+      <div class="tag"><span class="material-icons-round">public</span> Free &amp; Open</div>
+      <div class="tag"><span class="material-icons-round">groups</span> Community</div>
     </div>
 
     <div class="footer-note">© 2025 Project Celestial Lab — by Kazuyoo</div>
@@ -440,7 +259,7 @@
     <div class="nav-indicator"><span class="material-icons-round">home</span></div><span class="nav-label">Home</span>
   </div>
   <div class="nav-item" id="nav-modules" onclick="showSection('modules', this)">
-    <div class="nav-indicator"><span class="material-icons-round">widgets</span></div><span class="nav-label">Modules</span>
+    <div class="nav-indicator"><span class="material-icons-round">widgets</span></div><span class="nav-label">Projects</span>
   </div>
   <div class="nav-item" id="nav-support" onclick="showSection('support', this)">
     <div class="nav-indicator"><span class="material-icons-round">favorite</span></div><span class="nav-label">Support</span>
@@ -448,32 +267,12 @@
 </nav>
 
 <script>
-  let currentFilter = 'all';
   function showSection(id, navEl){
     document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     (navEl||document.getElementById('nav-'+id)).classList.add('active');
     window.scrollTo({top:0,behavior:'smooth'});
-  }
-  function setFilter(el, filter){
-    currentFilter = filter;
-    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-    el.classList.add('active');
-    filterModules();
-  }
-  function filterModules(){
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    const cards = document.querySelectorAll('#moduleList .module-card');
-    let visible = 0;
-    cards.forEach(card=>{
-      const name = card.dataset.name.toLowerCase();
-      const status = card.dataset.status;
-      const show = name.includes(query) && (currentFilter==='all' || status===currentFilter);
-      card.style.display = show ? '' : 'none';
-      if(show) visible++;
-    });
-    document.getElementById('emptyState').style.display = visible===0 ? 'block' : 'none';
   }
 </script>
 </body>
