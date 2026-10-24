@@ -1,0 +1,23 @@
+- Switched to a permanent gaming profile tuned to stay smooth, stable and battery-friendly
+- Removed the CPU frequency floor (`BIG_FLOOR_PCT=0`) because the CPU already runs at max frequency under load; a floor only added heat
+- Kept a 30% GPU floor with 20ms devfreq polling for faster GPU ramp-up
+- Fixed top-app uclamp: value is now a percentage (`TOP_APP_UCLAMP_MIN=12`), previously the invalid value 128 was rejected by the kernel
+- Fixed `sched_migration_cost_ns`: 150000 → 500000 (the old value was below the kernel default and increased task migrations)
+- Removed `sched_time_avg_ms`, `sched_autogroup_enabled` and `sched_child_runs_first` to stop fighting Android's cpuctl cgroups and zygote forks
+- Removed `rmem_max`/`wmem_max` (no effect on TCP autotuning)
+- Lowered `GAME_SWAPPINESS` to 70 to cut zram compression load on a CPU-bound device
+- Added guarded schedtune support: top-app boost 15 with prefer_idle, foreground and background boost 0; only applied if `/dev/stune` exists
+- Added topology-derived cpuset tuning with no hardcoded core numbers: top-app and foreground use all cores, background and restricted are limited to the first 2 little cores, system-background to the first 4
+- Heap props (`dalvik.vm.heapstartsize`/`heapgrowthlimit`) moved to a new `post-fs-data.sh` so they apply before zygote starts, raise-only logic kept
+- Added boot handling in the `service.sh` wrapper: waits for `sys.boot_completed`, caps the storage wait at 60s and adds a 15s settle delay so vendor HAL cannot overwrite values
+- Wrapper now runs CKT via `sh "$MODDIR/system/bin/CKT"`, independent of PATH and exec bit
+- Script now runs at lowest CPU/IO priority (`taskset`, `renice`, `ionice`)
+- Fixed `write_val` so sysfs errors no longer leak to stderr
+- Silenced stderr when reading the block scheduler list
+- Removed the trailing `sync` and dead trailing code
+- Installer: fixed `print_msg` in Axeron mode (newline added, `%` safe) and replaced stray `ui_print` calls
+- Installer: logcat buffer size now calculated in pure shell (no `awk`), minimum 1 MB
+- Installer: `TMPDIR` now falls back to `/data/local/tmp`
+- Installer: checksum verification now accepts both `hash` and `hash  filename` formats
+- Installer: removed `/storage` from the `fstrim` list and removed the `logcat -c` call that wiped user logs
+- Installer: `post-fs-data.sh` is now extracted and verified together with the other module files
