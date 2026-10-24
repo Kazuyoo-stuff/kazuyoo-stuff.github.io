@@ -1,3 +1,6 @@
+# Changelog
+
+## [v1.8]
 - Switched to a permanent gaming profile tuned to stay smooth, stable and battery-friendly
 - Removed the CPU frequency floor (`BIG_FLOOR_PCT=0`) because the CPU already runs at max frequency under load; a floor only added heat
 - Kept a 30% GPU floor with 20ms devfreq polling for faster GPU ramp-up
